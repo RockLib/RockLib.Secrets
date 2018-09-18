@@ -16,7 +16,7 @@ namespace RockLib.Secrets
         /// </param>
         public SecretsConfigurationProvider(ISecretsProvider secretsProvider)
         {
-            foreach (var secret in secretsProvider.GetSecrets())
+            foreach (var secret in secretsProvider.Secrets)
             {
                 string value;
                 try { value = secret.GetValue(); }

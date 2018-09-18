@@ -13,22 +13,26 @@ namespace RockLib.Secrets
         /// <summary>
         /// Initializes a new instance of the <see cref="CompositeSecretsProvider"/> class.
         /// </summary>
-        /// <param name="secretsProviders"></param>
-        public CompositeSecretsProvider(IReadOnlyCollection<ISecretsProvider> secretsProviders) =>
-            Providers = secretsProviders ?? throw new ArgumentNullException(nameof(secretsProviders));
+        /// <param name="providers">
+        /// The implementations of <see cref="ISecretsProvider"/> that are the source of the
+        /// secrets returned by the <see cref="Secrets"/> property.
+        /// </param>
+        public CompositeSecretsProvider(IReadOnlyCollection<ISecretsProvider> providers)
+        {
+            Providers = providers ?? throw new ArgumentNullException(nameof(providers));
+            Secrets = providers.SelectMany(p => p.Secrets).ToArray();
+        }
 
         /// <summary>
         /// Gets the implementations of <see cref="ISecretsProvider"/> that are
-        /// the source of the secrets returned by the <see cref="GetSecrets"/> method.
-        /// the secrets
+        /// the source of the secrets returned by the <see cref="Secrets"/> property.
         /// </summary>
         public IReadOnlyCollection<ISecretsProvider> Providers { get; }
 
         /// <summary>
-        /// Gets all available secrets from all providers in <see cref="Providers"/>.
+        /// Gets the secrets for this provider.
         /// </summary>
-        /// <returns>A list of secrets.</returns>
-        public IReadOnlyList<ISecret> GetSecrets() =>
-            Providers.SelectMany(s => s.GetSecrets()).ToList();
+        /// <returns>A list of secrets for this provider.</returns>
+        public IReadOnlyList<ISecret> Secrets { get; }
     }
 }

@@ -9,9 +9,9 @@ namespace RockLib.Secrets
     public interface ISecretsProvider
     {
         /// <summary>
-        /// Gets all available secrets from this provider.
+        /// Gets the secrets for this provider.
         /// </summary>
-        /// <returns>A list of secrets.</returns>
-        IReadOnlyList<ISecret> GetSecrets();
+        /// <returns>A list of secrets for this provider.</returns>
+        IReadOnlyList<ISecret> Secrets { get; }
     }
 }

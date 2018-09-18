@@ -14,6 +14,6 @@ namespace RockLib.Secrets
         /// Returns an empty list of secrets.
         /// </summary>
         /// <returns>An empty list of secrets.</returns>
-        public IReadOnlyList<ISecret> GetSecrets() => _empty;
+        public IReadOnlyList<ISecret> Secrets => _empty;
     }
 }
