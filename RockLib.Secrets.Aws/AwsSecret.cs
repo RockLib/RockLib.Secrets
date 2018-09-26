@@ -10,11 +10,11 @@ namespace RockLib.Secrets.Aws
     {
         private readonly string _exceptionMessage;
 
-        public AwsSecret(string key, string awsSecretKey, string awsSecretId, IAmazonSecretsManager secretsClient)
+        public AwsSecret(string key, string awsSecretId, string awsSecretKey,  IAmazonSecretsManager secretsClient)
         {
             Key = key;
-            AwsSecretKey = awsSecretKey;
             AwsSecretId = awsSecretId;
+            AwsSecretKey = awsSecretKey;
             SecretsClient = secretsClient;
 
             _exceptionMessage = $"No secret was found with the AwsSecretId '{AwsSecretId}' and AwsSecretKey '{AwsSecretKey}' for the key '{Key}'";

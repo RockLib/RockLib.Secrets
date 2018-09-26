@@ -18,7 +18,7 @@ namespace RockLib.Secrets.Aws
         }
 
         public AwsSecretsProvider(IAmazonSecretsManager secretsClient, IEnumerable<AwsSecretDefinition> secrets)
-            : this(secretsClient, secrets.SelectMany(s => s.Keys.Select(k => new AwsSecret(k.Key, k.AwsSecretKey, s.AwsSecretId, secretsClient))).ToList())
+            : this(secretsClient, secrets.Select(s => new AwsSecret(s.Key, s.AwsSecretId, s.AwsSecretKey, secretsClient)).ToList())
         {
         }
 

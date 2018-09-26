@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
-
-namespace RockLib.Secrets.Aws
+﻿namespace RockLib.Secrets.Aws
 {
     public class AwsSecretDefinition
     {
-        public AwsSecretDefinition(string awsSecretId, IEnumerable<AwsSecretKeyDefinition> keys)
+        public AwsSecretDefinition(string key, string awsSecretId, string awsSecretKey)
         {
+            Key = key;
             AwsSecretId = awsSecretId;
-            Keys = keys;
+            AwsSecretKey = awsSecretKey;
         }
 
+        public string Key { get; }
         public string AwsSecretId { get; }
-        public IEnumerable<AwsSecretKeyDefinition> Keys { get; }
+        public string AwsSecretKey { get; }
     }
 }
