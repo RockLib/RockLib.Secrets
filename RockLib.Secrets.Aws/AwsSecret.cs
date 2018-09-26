@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
+using Newtonsoft.Json.Linq;
 
 namespace RockLib.Secrets.Aws
 {
@@ -9,16 +10,18 @@ namespace RockLib.Secrets.Aws
     {
         private readonly string _exceptionMessage;
 
-        public AwsSecret(string key, string awsSecretId, IAmazonSecretsManager secretsClient)
+        public AwsSecret(string key, string awsSecretId, string awsSecretKey,  IAmazonSecretsManager secretsClient)
         {
             Key = key;
             AwsSecretId = awsSecretId;
+            AwsSecretKey = awsSecretKey;
             SecretsClient = secretsClient;
 
-            _exceptionMessage = $"No secret was found with the AwsSecretId '{AwsSecretId}' for the key '{Key}'";
+            _exceptionMessage = $"No secret was found with the AwsSecretId '{AwsSecretId}' and AwsSecretKey '{AwsSecretKey}' for the key '{Key}'";
         }
 
         public string Key { get; }
+        public string AwsSecretKey { get; }
         public string AwsSecretId { get; }
         public IAmazonSecretsManager SecretsClient { get; }
 
@@ -36,7 +39,13 @@ namespace RockLib.Secrets.Aws
                 throw new KeyNotFoundException(_exceptionMessage);
 
             if (response.SecretString != null)
-                return response.SecretString;
+            {
+                var secret = JObject.Parse(response.SecretString)[AwsSecretKey];
+                if (secret != null)
+                    return secret.ToString();
+
+                throw new KeyNotFoundException(_exceptionMessage);
+            }
 
             if (response.SecretBinary != null)
                 return Convert.ToBase64String(response.SecretBinary.ToArray());
