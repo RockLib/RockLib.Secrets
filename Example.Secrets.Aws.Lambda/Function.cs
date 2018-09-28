@@ -19,14 +19,8 @@ namespace Example.Secrets.Aws.Lambda
         /// <returns></returns>
         public void FunctionHandler(string input, ILambdaContext context)
         {
-            // Grabbing old configuration before calling anything from RockLib.Configuration
-            var oldConfig = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-            var oldSetting1 = oldConfig.GetSection("AppSettings:TestSecret1").Value;
-            var oldSetting2 = oldConfig.GetSection("AppSettings:TestSecret2").Value;
-            Console.WriteLine($"Old TestSecret1: {oldSetting1}");
-            Console.WriteLine($"Old TestSecret2: {oldSetting2}");
-
-            // This should automatically get replaced with the secret in Amazons SecretManager
+            // NOTE: The 'ValueToBeReplaced1 and ValueToBeReplace2 should automatically
+            // get replaced with the secrets in Amazons SecretManager
             var replacedSetting1 = Config.AppSettings["TestSecret1"];
             var replacedSetting2 = Config.AppSettings["TestSecret2"];
             Console.WriteLine($"New TestSecret1: {replacedSetting1}");
