@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using RockLib.Configuration;
 using RockLib.Configuration.ObjectFactory;
 using System.Collections.Generic;
 
@@ -38,7 +39,7 @@ namespace RockLib.Secrets
         private static ISecretsProvider CreateSecretsProvider(IConfiguration configuration)
         {
             List<ISecretsProvider> secretsProviders;
-            try { secretsProviders = configuration.GetSection("RockLib.Secrets").Create<List<ISecretsProvider>>(); }
+            try { secretsProviders = configuration.GetCompositeSection("RockLib_Secrets", "RockLib.Secrets").Create<List<ISecretsProvider>>(); }
             catch { return new NullSecretsProvider(); } // TODO: or throw an exception? or don't catch the exception? 
             if (secretsProviders.Count == 0)
                 return new NullSecretsProvider(); // TODO: or throw an exception?
