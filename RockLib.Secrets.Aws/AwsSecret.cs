@@ -14,13 +14,25 @@ namespace RockLib.Secrets.Aws
         private readonly string _exceptionMessage;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AwsSecret"/> class.
+        /// Initializes a new instance of the <see cref="AwsSecret"/> class for plaintext secrets.
+        /// </summary>
+        /// <param name="key">The key used to retrieve the secret from the provider.</param>
+        /// <param name="awsSecretName">The name of the secret in AWS.</param>
+        /// <param name="secretsClient">The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.</param>
+        public AwsSecret(string key, string awsSecretName, IAmazonSecretsManager secretsClient)
+            : this(key, awsSecretName, null, secretsClient)
+        {
+            _exceptionMessage = $"No secret was found with the AwsSecretName '{AwsSecretName}' for the key '{Key}'";
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AwsSecret"/> class for key/value secrets.
         /// </summary>
         /// <param name="key">The key used to retrieve the secret from the provider.</param>
         /// <param name="awsSecretName">The name of the secret in AWS.</param>
         /// <param name="awsSecretKey">The key of the secret in AWS.</param>
         /// <param name="secretsClient">The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.</param>
-        public AwsSecret(string key, string awsSecretName, string awsSecretKey,  IAmazonSecretsManager secretsClient)
+        public AwsSecret(string key, string awsSecretName, string awsSecretKey, IAmazonSecretsManager secretsClient)
         {
             Key = key;
             AwsSecretName = awsSecretName;
@@ -69,11 +81,16 @@ namespace RockLib.Secrets.Aws
 
             if (response.SecretString != null)
             {
-                var secret = JObject.Parse(response.SecretString)[AwsSecretKey];
-                if (secret != null)
-                    return secret.ToString();
+                if (AwsSecretKey != null)
+                {
+                    var secret = JObject.Parse(response.SecretString)[AwsSecretKey];
+                    if (secret != null)
+                        return secret.ToString();
 
-                throw new KeyNotFoundException(_exceptionMessage);
+                    throw new KeyNotFoundException(_exceptionMessage);
+                }
+
+                return response.SecretString;
             }
 
             if (response.SecretBinary != null)

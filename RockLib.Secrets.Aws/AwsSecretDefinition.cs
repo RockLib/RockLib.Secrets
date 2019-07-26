@@ -6,7 +6,17 @@
     public class AwsSecretDefinition
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AwsSecretDefinition"/> class.
+        /// Initializes a new instance of the <see cref="AwsSecretDefinition"/> class for plaintext secrets.
+        /// </summary>
+        /// <param name="key">The key used to retrieve the secret from the provider.</param>
+        /// <param name="awsSecretName">The name of the secret in AWS.</param>
+        public AwsSecretDefinition(string key, string awsSecretName)
+            : this(key, awsSecretName, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AwsSecretDefinition"/> class for key/value secrets.
         /// </summary>
         /// <param name="key">The key used to retrieve the secret from the provider.</param>
         /// <param name="awsSecretName">The name of the secret in AWS.</param>

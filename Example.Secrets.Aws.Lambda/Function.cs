@@ -1,6 +1,5 @@
 using System;
 using Amazon.Lambda.Core;
-using Microsoft.Extensions.Configuration;
 using RockLib.Configuration;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -23,8 +22,10 @@ namespace Example.Secrets.Aws.Lambda
             // get replaced with the secrets in Amazons SecretManager
             var replacedSetting1 = Config.AppSettings["TestSecret1"];
             var replacedSetting2 = Config.AppSettings["TestSecret2"];
+            var replacedSetting3 = Config.AppSettings["TestPlaintextSecret1"];
             Console.WriteLine($"New TestSecret1: {replacedSetting1}");
             Console.WriteLine($"New TestSecret2: {replacedSetting2}");
+            Console.WriteLine($"New TestPlaintextSecret1: {replacedSetting3}");
         }
     }
 }
