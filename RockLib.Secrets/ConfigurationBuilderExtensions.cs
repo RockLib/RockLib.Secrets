@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using RockLib.Configuration;
 using RockLib.Configuration.ObjectFactory;
+using System;
 using System.Collections.Generic;
 
 namespace RockLib.Secrets
@@ -38,11 +39,10 @@ namespace RockLib.Secrets
 
         private static ISecretsProvider CreateSecretsProvider(IConfiguration configuration)
         {
-            List<ISecretsProvider> secretsProviders;
-            try { secretsProviders = configuration.GetCompositeSection("RockLib_Secrets", "RockLib.Secrets").Create<List<ISecretsProvider>>(); }
-            catch { return new NullSecretsProvider(); } // TODO: or throw an exception? or don't catch the exception? 
+            var secretsProviders = configuration.GetCompositeSection("RockLib_Secrets", "RockLib.Secrets")
+                .Create<List<ISecretsProvider>>();
             if (secretsProviders.Count == 0)
-                return new NullSecretsProvider(); // TODO: or throw an exception?
+                throw new InvalidOperationException("No secret providers are defined in the RockLib_Secrets / RockLib.Secrets composite section.");
             if (secretsProviders.Count == 1)
                 return secretsProviders[0];
             return new CompositeSecretsProvider(secretsProviders);
