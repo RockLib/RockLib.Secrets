@@ -65,6 +65,9 @@ namespace RockLib.Secrets
         /// <returns>The <see cref="IConfigurationBuilder"/></returns>
         public static IConfigurationBuilder AddRockLibSecrets(this IConfigurationBuilder builder, Action<SecretsConfigurationSource> configureSource)
         {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+
             var source = new SecretsConfigurationSource();
             configureSource?.Invoke(source);
             return builder.Add(source);
@@ -105,6 +108,9 @@ namespace RockLib.Secrets
 
         private static ISecretsProvider CreateSecretsProvider(this IConfigurationBuilder builder)
         {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+
             var configuration = builder.Build();
             var secretsProviders = configuration.GetCompositeSection("RockLib_Secrets", "RockLib.Secrets")
                 .Create<List<ISecretsProvider>>();
