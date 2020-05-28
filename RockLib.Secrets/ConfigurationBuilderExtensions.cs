@@ -63,8 +63,12 @@ namespace RockLib.Secrets
         /// returned by the <see cref="GetSecretsProvider"/> extension method is used instead.
         /// </param>
         /// <returns>The <see cref="IConfigurationBuilder"/></returns>
-        public static IConfigurationBuilder AddRockLibSecrets(this IConfigurationBuilder builder, Action<SecretsConfigurationSource> configureSource) =>
-            builder.Add(configureSource);
+        public static IConfigurationBuilder AddRockLibSecrets(this IConfigurationBuilder builder, Action<SecretsConfigurationSource> configureSource)
+        {
+            var source = new SecretsConfigurationSource();
+            configureSource?.Invoke(source);
+            return builder.Add(source);
+        }
 
         /// <summary>
         /// Sets the default <see cref="ISecretsProvider"/> to be used for SecretsConfigurationProviders.
