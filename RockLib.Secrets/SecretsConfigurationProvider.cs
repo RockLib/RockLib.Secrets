@@ -1,22 +1,34 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System;
 
 namespace RockLib.Secrets
 {
     /// <summary>
     /// Implementation of <see cref="IConfigurationProvider"/> backed by
-    /// a secret store.
+    /// a <see cref="ISecretsProvider"/>.
     /// </summary>
     public class SecretsConfigurationProvider : ConfigurationProvider
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SecretsConfigurationProvider"/> class.
         /// </summary>
-        /// <param name="secretsProvider">
-        /// An object that provides the secrets that make up the settings of this instance.
-        /// </param>
-        public SecretsConfigurationProvider(ISecretsProvider secretsProvider)
+        /// <param name="source">The source settings.</param>
+        public SecretsConfigurationProvider(SecretsConfigurationSource source)
         {
-            foreach (var secret in secretsProvider.Secrets)
+            Source = source ?? throw new ArgumentNullException(nameof(source));
+        }
+
+        /// <summary>
+        /// The source settings for this provider.
+        /// </summary>
+        public SecretsConfigurationSource Source { get; }
+
+        /// <summary>
+        /// Loads data from the secrets provider.
+        /// </summary>
+        public override void Load()
+        {
+            foreach (var secret in Source.SecretsProvider.Secrets)
             {
                 string value;
                 try { value = secret.GetValue(); }

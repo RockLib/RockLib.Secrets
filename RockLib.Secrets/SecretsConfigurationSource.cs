@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System;
 
 namespace RockLib.Secrets
 {
@@ -9,23 +8,25 @@ namespace RockLib.Secrets
     public class SecretsConfigurationSource : IConfigurationSource
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SecretsConfigurationSource"/> class.
+        /// Used to access a collection of secrets. If null, the default secrets provider,
+        /// stored in the configuration builder's properties, will be used instead.
         /// </summary>
-        /// <param name="secretsProvider"></param>
-        public SecretsConfigurationSource(ISecretsProvider secretsProvider) =>
-            SecretsProvider = secretsProvider ?? throw new ArgumentNullException(nameof(secretsProvider));
-
-        /// <summary>
-        /// Gets the <see cref="ISecretsProvider"/>.
-        /// </summary>
-        public ISecretsProvider SecretsProvider { get; }
+        public ISecretsProvider SecretsProvider { get; set; }
 
         /// <summary>
         /// Builds the <see cref="SecretsConfigurationProvider"/> for this source.
         /// </summary>
         /// <param name="builder">The <see cref="IConfigurationBuilder"/>.</param>
         /// <returns>An instance of <see cref="SecretsConfigurationProvider"/>.</returns>
-        public IConfigurationProvider Build(IConfigurationBuilder builder) =>
-            new SecretsConfigurationProvider(SecretsProvider);
+        public IConfigurationProvider Build(IConfigurationBuilder builder)
+        {
+            EnsureDefaults(builder);
+            return new SecretsConfigurationProvider(this);
+        }
+
+        private void EnsureDefaults(IConfigurationBuilder builder)
+        {
+            SecretsProvider = SecretsProvider ?? builder.GetSecretsProvider();
+        }
     }
 }
