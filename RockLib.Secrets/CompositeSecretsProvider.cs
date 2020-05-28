@@ -10,6 +10,8 @@ namespace RockLib.Secrets
     /// </summary>
     public class CompositeSecretsProvider : ISecretsProvider
     {
+        private readonly Lazy<IReadOnlyList<ISecret>> _secrets;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CompositeSecretsProvider"/> class.
         /// </summary>
@@ -20,7 +22,7 @@ namespace RockLib.Secrets
         public CompositeSecretsProvider(IReadOnlyCollection<ISecretsProvider> providers)
         {
             Providers = providers ?? throw new ArgumentNullException(nameof(providers));
-            Secrets = providers.SelectMany(p => p.Secrets).ToArray();
+            _secrets = new Lazy<IReadOnlyList<ISecret>>(() => Providers.SelectMany(p => p.Secrets).ToArray());
         }
 
         /// <summary>
@@ -33,6 +35,6 @@ namespace RockLib.Secrets
         /// Gets the secrets for this provider.
         /// </summary>
         /// <returns>A list of secrets for this provider.</returns>
-        public IReadOnlyList<ISecret> Secrets { get; }
+        public IReadOnlyList<ISecret> Secrets => _secrets.Value;
     }
 }
