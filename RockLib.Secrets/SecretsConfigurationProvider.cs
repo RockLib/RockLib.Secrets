@@ -19,7 +19,20 @@ namespace RockLib.Secrets
         /// <param name="source">The source settings.</param>
         public SecretsConfigurationProvider(SecretsConfigurationSource source)
         {
-            Source = source ?? throw new ArgumentNullException(nameof(source));
+            if (source is null)
+                throw new ArgumentNullException(nameof(source));
+            if (source.SecretsProvider is null)
+                throw new ArgumentException("SecretsProvider cannot be null.", nameof(source));
+            if (source.SecretsProvider.Secrets is null)
+                throw new ArgumentException("SecretsProvider.Secrets cannot be null.", nameof(source));
+            if (source.SecretsProvider.Secrets.Any(s => s is null))
+                throw new ArgumentException("SecretsProvider.Secrets cannot contain any null items.", nameof(source));
+            if (source.SecretsProvider.Secrets.Any(s => s.Key is null))
+                throw new ArgumentException("SecretsProvider.Secrets cannot contain any items with a null Key.", nameof(source));
+            if (source.SecretsProvider.Secrets.Select(s => s.Key).Distinct(StringComparer.OrdinalIgnoreCase).Count() != source.SecretsProvider.Secrets.Count)
+                throw new ArgumentException("SecretsProvider.Secrets cannot contain any items with duplicate Keys.", nameof(source));
+
+            Source = source;
 
             _timer = new Timer(_ => Load());
         }

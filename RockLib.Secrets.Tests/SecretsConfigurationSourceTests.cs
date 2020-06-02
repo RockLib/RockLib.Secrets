@@ -25,9 +25,12 @@ namespace RockLib.Secrets.Tests
         [Fact(DisplayName = "Build method returns SecretsConfigurationProvider")]
         public void BuildMethodHappyPath1()
         {
+            var mockSecretsProvider = new Mock<ISecretsProvider>();
+            mockSecretsProvider.Setup(m => m.Secrets).Returns(new ISecret[0]);
+
             var source = new SecretsConfigurationSource
             {
-                SecretsProvider = new Mock<ISecretsProvider>().Object
+                SecretsProvider = mockSecretsProvider.Object
             };
 
             var builder = new ConfigurationBuilder();
@@ -41,18 +44,19 @@ namespace RockLib.Secrets.Tests
         [Fact(DisplayName = "Build method sets SecretsProvider property from builder when ServiceProvider is null")]
         public void BuildMethodHappyPath2()
         {
-            var secretsProvider = new Mock<ISecretsProvider>().Object;
+            var mockSecretsProvider = new Mock<ISecretsProvider>();
+            mockSecretsProvider.Setup(m => m.Secrets).Returns(new ISecret[0]);
 
             var source = new SecretsConfigurationSource();
 
             var builder = new ConfigurationBuilder();
-            builder.SetSecretsProvider(secretsProvider);
+            builder.SetSecretsProvider(mockSecretsProvider.Object);
 
             var provider = source.Build(builder);
 
             var secretsConfigurationProvider = provider.Should().BeOfType<SecretsConfigurationProvider>().Subject;
             secretsConfigurationProvider.Source.Should().BeSameAs(source);
-            secretsConfigurationProvider.Source.SecretsProvider.Should().BeSameAs(secretsProvider);
+            secretsConfigurationProvider.Source.SecretsProvider.Should().BeSameAs(mockSecretsProvider.Object);
         }
 
         [Fact(DisplayName = "Build method throws when no SecretsProvider is provided")]
