@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using System;
 using Xunit;
 
 namespace RockLib.Secrets.Tests
@@ -38,6 +39,17 @@ namespace RockLib.Secrets.Tests
             var secretsConfigurationProvider = provider.Should().BeOfType<SecretsConfigurationProvider>().Subject;
             secretsConfigurationProvider.Source.Should().BeSameAs(source);
             secretsConfigurationProvider.Source.SecretsProvider.Should().BeSameAs(secretsProvider);
+        }
+
+        [Fact(DisplayName = "Build method throws when no SecretsProvider is provided")]
+        public void BuildMethodSadPath()
+        {
+            var source = new SecretsConfigurationSource();
+            var builder = new ConfigurationBuilder();
+
+            Action act = () => source.Build(builder);
+
+            act.Should().ThrowExactly<InvalidOperationException>().WithMessage("No secrets provider was provided.");
         }
     }
 }

@@ -103,7 +103,7 @@ namespace RockLib.Secrets
             if (builder.Properties.TryGetValue(SecretsProviderKey, out var value) && value is ISecretsProvider secretsProvider)
                 return secretsProvider;
 
-            throw new KeyNotFoundException($"IConfigurationBuilder.Properties does not contain an ISecretsProvider with the key '{SecretsProviderKey}'.");
+            return null;
         }
 
         private static ISecretsProvider CreateSecretsProvider(this IConfigurationBuilder builder)

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System;
 
 namespace RockLib.Secrets
 {
@@ -26,7 +27,7 @@ namespace RockLib.Secrets
 
         private void EnsureDefaults(IConfigurationBuilder builder)
         {
-            SecretsProvider = SecretsProvider ?? builder.GetSecretsProvider();
+            SecretsProvider = SecretsProvider ?? builder.GetSecretsProvider() ?? throw new InvalidOperationException("No secrets provider was provided.");
         }
     }
 }
