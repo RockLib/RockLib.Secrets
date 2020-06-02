@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
+using System.Linq;
+using System.Threading;
 
 namespace RockLib.Secrets
 {
@@ -9,6 +11,8 @@ namespace RockLib.Secrets
     /// </summary>
     public class SecretsConfigurationProvider : ConfigurationProvider
     {
+        private readonly Timer _timer;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SecretsConfigurationProvider"/> class.
         /// </summary>
@@ -16,6 +20,8 @@ namespace RockLib.Secrets
         public SecretsConfigurationProvider(SecretsConfigurationSource source)
         {
             Source = source ?? throw new ArgumentNullException(nameof(source));
+
+            _timer = new Timer(_ => Load());
         }
 
         /// <summary>
@@ -28,12 +34,45 @@ namespace RockLib.Secrets
         /// </summary>
         public override void Load()
         {
-            foreach (var secret in Source.SecretsProvider.Secrets)
+            try
             {
-                string value;
-                try { value = secret.GetValue(); }
-                catch { continue; }
-                Data.Add(secret.Key, value);
+                var secretValues = Source.SecretsProvider.Secrets.Select(secret =>
+                {
+                    try
+                    {
+                        return new { secret.Key, Value = secret.GetValue() };
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                }).Where(s => s != null);
+
+                var secretChanged = false;
+
+                if (Data.Count == 0)
+                {
+                    foreach (var secret in secretValues)
+                        Data.Add(secret.Key, secret.Value);
+                }
+                else
+                {
+                    foreach (var secret in secretValues)
+                    {
+                        if (Data[secret.Key] != secret.Value)
+                        {
+                            secretChanged = true;
+                            Data[secret.Key] = secret.Value;
+                        }
+                    }
+                }
+
+                if (secretChanged)
+                    OnReload();
+            }
+            finally
+            {
+                _timer.Change(Source.ReloadMilliseconds, Timeout.Infinite);
             }
         }
     }

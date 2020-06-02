@@ -2,12 +2,26 @@
 using Microsoft.Extensions.Configuration;
 using Moq;
 using System;
+using System.Threading;
 using Xunit;
 
 namespace RockLib.Secrets.Tests
 {
     public class SecretsConfigurationSourceTests
     {
+        [Fact(DisplayName = "DisableReload method sets ReloadMilliseconds to Timeout.Infinite")]
+        public void DisableReloadMethodHappyPath()
+        {
+            var source = new SecretsConfigurationSource
+            {
+                ReloadMilliseconds = 1000
+            };
+
+            source.DisableReload();
+
+            source.ReloadMilliseconds.Should().Be(Timeout.Infinite);
+        }
+
         [Fact(DisplayName = "Build method returns SecretsConfigurationProvider")]
         public void BuildMethodHappyPath1()
         {
