@@ -55,8 +55,9 @@ namespace RockLib.Secrets
                     {
                         return new { secret.Key, Value = secret.GetValue() };
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        Source.OnSecretException?.Invoke(new SecretExceptionContext(this, ex));
                         return null;
                     }
                 }).Where(s => s != null);

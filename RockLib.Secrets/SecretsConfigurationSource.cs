@@ -21,6 +21,12 @@ namespace RockLib.Secrets
         public ISecretsProvider SecretsProvider { get; set; }
 
         /// <summary>
+        /// Will be called if an uncaught exception occurs when calling <see cref="ISecret.GetValue"/>
+        /// from the <see cref="SecretsConfigurationProvider.Load"/> method.
+        /// </summary>
+        public Action<SecretExceptionContext> OnSecretException { get; set; }
+
+        /// <summary>
         /// The number of milliseconds to wait before reloading secrets. Specify <see cref="Timeout.Infinite"/>
         /// to disable reloading.
         /// </summary>
@@ -54,6 +60,7 @@ namespace RockLib.Secrets
         private void EnsureDefaults(IConfigurationBuilder builder)
         {
             SecretsProvider = SecretsProvider ?? builder.GetSecretsProvider() ?? throw new InvalidOperationException("No secrets provider was provided.");
+            OnSecretException = OnSecretException ?? builder.GetSecretExceptionHandler();
         }
     }
 }

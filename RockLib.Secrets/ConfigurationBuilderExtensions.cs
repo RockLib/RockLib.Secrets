@@ -18,6 +18,13 @@ namespace RockLib.Secrets
         public const string SecretsProviderKey = "RockLib.SecretsProvider";
 
         /// <summary>
+        /// The key to the <see cref="IConfigurationBuilder.Properties"/> where the
+        /// default default action to be invoked for SecretsConfigurationProvider when
+        /// an error occurs while getting the value of a secret is stored.
+        /// </summary>
+        public const string SecretExceptionHandlerKey = "RockLib.SecretExceptionHandler";
+
+        /// <summary>
         /// Adds a secrets configuration source to the <paramref name="builder"/>.
         /// <para>
         /// The underlying implementation of <see cref="ISecretsProvider"/> is created by building
@@ -102,6 +109,42 @@ namespace RockLib.Secrets
 
             if (builder.Properties.TryGetValue(SecretsProviderKey, out var value) && value is ISecretsProvider secretsProvider)
                 return secretsProvider;
+
+            return null;
+        }
+
+        /// <summary>
+        /// Sets a default action to be invoked for SecretsConfigurationProvider when an error occurs while getting
+        /// the value of a secret.
+        /// </summary>
+        /// <param name="builder">The <see cref="IConfigurationBuilder"/> to add to.</param>
+        /// <param name="onSecretException">The action to be invoked for SecretsConfigurationProvider.</param>
+        /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
+        public static IConfigurationBuilder SetSecretExceptionHandler(this IConfigurationBuilder builder, Action<SecretExceptionContext> onSecretException)
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+
+            builder.Properties[SecretExceptionHandlerKey] = onSecretException ?? throw new ArgumentNullException(nameof(onSecretException));
+            return builder;
+        }
+
+        /// <summary>
+        /// Gets the default action to be invoked for SecretsConfigurationProvider when an error occurs while
+        /// getting the value of a secret.
+        /// </summary>
+        /// <param name="builder">
+        /// The default action to be invoked for SecretsConfigurationProvider when an error occurs while getting
+        /// the value of a secret.
+        /// </param>
+        /// <returns>The default <see cref="ISecretsProvider"/>.</returns>
+        public static Action<SecretExceptionContext> GetSecretExceptionHandler(this IConfigurationBuilder builder)
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+
+            if (builder.Properties.TryGetValue(SecretExceptionHandlerKey, out var value) && value is Action<SecretExceptionContext> exceptionHandler)
+                return exceptionHandler;
 
             return null;
         }

@@ -59,6 +59,29 @@ namespace RockLib.Secrets.Tests
             secretsConfigurationProvider.Source.SecretsProvider.Should().BeSameAs(mockSecretsProvider.Object);
         }
 
+        [Fact(DisplayName = "Build method sets OnSecretException property from builder when OnSecretException is null")]
+        public void BuildMethodHappyPath3()
+        {
+            Action<SecretExceptionContext> onSecretException = context => { };
+
+            var mockSecretsProvider = new Mock<ISecretsProvider>();
+            mockSecretsProvider.Setup(m => m.Secrets).Returns(new ISecret[0]);
+
+            var source = new SecretsConfigurationSource
+            {
+                SecretsProvider = mockSecretsProvider.Object
+            };
+
+            var builder = new ConfigurationBuilder();
+            builder.SetSecretExceptionHandler(onSecretException);
+
+            var provider = source.Build(builder);
+
+            var secretsConfigurationProvider = provider.Should().BeOfType<SecretsConfigurationProvider>().Subject;
+            secretsConfigurationProvider.Source.Should().BeSameAs(source);
+            secretsConfigurationProvider.Source.OnSecretException.Should().BeSameAs(onSecretException);
+        }
+
         [Fact(DisplayName = "Build method throws when no SecretsProvider is provided")]
         public void BuildMethodSadPath()
         {

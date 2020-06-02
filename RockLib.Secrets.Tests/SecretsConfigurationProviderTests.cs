@@ -135,7 +135,8 @@ namespace RockLib.Secrets.Tests
 
             var source = new SecretsConfigurationSource
             {
-                SecretsProvider = mockSecretsProvider.Object
+                SecretsProvider = mockSecretsProvider.Object,
+                ReloadMilliseconds = Timeout.Infinite
             };
 
             var provider = new SecretsConfigurationProvider(source);
@@ -149,23 +150,34 @@ namespace RockLib.Secrets.Tests
             barValue.Should().Be("123");
         }
 
-        [Fact(DisplayName = "Load method ignores secrets that throw from their GetValue() method")]
+        [Fact(DisplayName = "Load method invokes exception handler when ISecret.GetValue method throws")]
         public void LoadMethodSadPath()
         {
+            var exception = new Exception();
+
             var mockSecret1 = new Mock<ISecret>();
             mockSecret1.Setup(m => m.Key).Returns("foo");
             mockSecret1.Setup(m => m.GetValue()).Returns("abc");
 
             var mockSecret2 = new Mock<ISecret>();
             mockSecret2.Setup(m => m.Key).Returns("bar");
-            mockSecret2.Setup(m => m.GetValue()).Throws<Exception>();
+            mockSecret2.Setup(m => m.GetValue()).Throws(exception);
 
             var mockSecretsProvider = new Mock<ISecretsProvider>();
             mockSecretsProvider.Setup(m => m.Secrets).Returns(new[] { mockSecret1.Object, mockSecret2.Object });
 
+            var caughtExceptions = new List<Exception>();
+
+            void OnSecretException(SecretExceptionContext context)
+            {
+                caughtExceptions.Add(context.Exception);
+            }
+
             var source = new SecretsConfigurationSource
             {
-                SecretsProvider = mockSecretsProvider.Object
+                SecretsProvider = mockSecretsProvider.Object,
+                ReloadMilliseconds = Timeout.Infinite,
+                OnSecretException = OnSecretException
             };
 
             var provider = new SecretsConfigurationProvider(source);
@@ -176,6 +188,9 @@ namespace RockLib.Secrets.Tests
             fooValue.Should().Be("abc");
 
             provider.TryGet("bar", out _).Should().BeFalse();
+
+            caughtExceptions.Should().HaveCount(1);
+            caughtExceptions[0].Should().BeSameAs(exception);
         }
     }
 }
