@@ -1,17 +1,18 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
 namespace RockLib.Secrets
 {
     /// <summary>
-    /// Implementation of <see cref="IConfigurationProvider"/> backed by
-    /// a <see cref="ISecretsProvider"/>.
+    /// Implementation of <see cref="IConfigurationProvider"/> backed by a collection of secrets.
     /// </summary>
     public class SecretsConfigurationProvider : ConfigurationProvider
     {
         private readonly Timer _timer;
+        private readonly IReadOnlyList<ISecret> _secrets;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SecretsConfigurationProvider"/> class.
@@ -21,20 +22,16 @@ namespace RockLib.Secrets
         {
             if (source is null)
                 throw new ArgumentNullException(nameof(source));
-            if (source.SecretsProvider is null)
-                throw new ArgumentException("SecretsProvider cannot be null.", nameof(source));
-            if (source.SecretsProvider.Secrets is null)
-                throw new ArgumentException("SecretsProvider.Secrets cannot be null.", nameof(source));
-            if (source.SecretsProvider.Secrets.Any(s => s is null))
-                throw new ArgumentException("SecretsProvider.Secrets cannot contain any null items.", nameof(source));
-            if (source.SecretsProvider.Secrets.Any(s => s.Key is null))
-                throw new ArgumentException("SecretsProvider.Secrets cannot contain any items with a null Key.", nameof(source));
-            if (source.SecretsProvider.Secrets.Select(s => s.Key).Distinct(StringComparer.OrdinalIgnoreCase).Count() != source.SecretsProvider.Secrets.Count)
-                throw new ArgumentException("SecretsProvider.Secrets cannot contain any items with duplicate Keys.", nameof(source));
+            if (source.Secrets.Any(s => s is null))
+                throw new ArgumentException("Secrets cannot contain any null items.", nameof(source));
+            if (source.Secrets.Any(s => s.Key is null))
+                throw new ArgumentException("Secrets cannot contain any items with a null Key.", nameof(source));
+            if (source.Secrets.Select(s => s.Key).Distinct(StringComparer.OrdinalIgnoreCase).Count() != source.Secrets.Count)
+                throw new ArgumentException("Secrets cannot contain any items with duplicate Keys.", nameof(source));
 
             Source = source;
-
             _timer = new Timer(_ => Load());
+            _secrets = source.Secrets.ToArray();
         }
 
         /// <summary>
@@ -49,7 +46,7 @@ namespace RockLib.Secrets
         {
             try
             {
-                var secretValues = Source.SecretsProvider.Secrets.Select(secret =>
+                var secretValues = _secrets.Select(secret =>
                 {
                     try
                     {

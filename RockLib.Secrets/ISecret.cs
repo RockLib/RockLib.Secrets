@@ -6,12 +6,12 @@
     public interface ISecret
     {
         /// <summary>
-        /// The identifier of the secret.
+        /// Gets the key of the secret.
         /// </summary>
         string Key { get; }
 
         /// <summary>
-        /// The value of the secret.
+        /// Gets the value of the secret.
         /// </summary>
         /// <returns>The secret value.</returns>
         string GetValue();

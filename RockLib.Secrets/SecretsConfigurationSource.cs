@@ -1,5 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
+using RockLib.Configuration;
+using RockLib.Configuration.ObjectFactory;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace RockLib.Secrets
@@ -14,11 +18,7 @@ namespace RockLib.Secrets
 
         private int _reloadMilliseconds = DefaultReloadMilliseconds;
 
-        /// <summary>
-        /// Used to access a collection of secrets. If null, the default secrets provider,
-        /// stored in the configuration builder's properties, will be used instead.
-        /// </summary>
-        public ISecretsProvider SecretsProvider { get; set; }
+        public List<ISecret> Secrets { get; } = new List<ISecret>();
 
         /// <summary>
         /// Will be called if an uncaught exception occurs when calling <see cref="ISecret.GetValue"/>
@@ -53,14 +53,41 @@ namespace RockLib.Secrets
         /// <returns>An instance of <see cref="SecretsConfigurationProvider"/>.</returns>
         public IConfigurationProvider Build(IConfigurationBuilder builder)
         {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+
             EnsureDefaults(builder);
             return new SecretsConfigurationProvider(this);
         }
 
         private void EnsureDefaults(IConfigurationBuilder builder)
         {
-            SecretsProvider = SecretsProvider ?? builder.GetSecretsProvider() ?? throw new InvalidOperationException("No secrets provider was provided.");
             OnSecretException = OnSecretException ?? builder.GetSecretExceptionHandler();
+
+            if (Secrets.Count == 0) // Or maybe always add secrets from configuration?
+            {
+                // Maybe try to detect duplicate keys here?
+                Secrets.AddRange(CreateSecretsFromConfiguration(builder));
+
+                if (Secrets.Count == 0)
+                    throw new InvalidOperationException("No secrets are defined.");
+            }
+        }
+
+        private IEnumerable<ISecret> CreateSecretsFromConfiguration(IConfigurationBuilder builder)
+        {
+            // Make a copy of the builder, excluding this SecretsConfigurationSource.
+            // Otherwise there will be infinite recursion when building the builder.
+            var builderCopy = new ConfigurationBuilder();
+            foreach (var source in builder.Sources.Where(s => !ReferenceEquals(this, s)))
+                builderCopy.Add(source);
+            foreach (var property in builder.Properties)
+                builderCopy.Properties.Add(property.Key, property.Value);
+
+            var configuration = builderCopy.Build();
+            
+            return configuration.GetCompositeSection("RockLib_Secrets", "RockLib.Secrets")
+                .Create<List<ISecret>>();
         }
     }
 }

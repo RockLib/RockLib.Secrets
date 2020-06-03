@@ -2,4 +2,4 @@
 using RockLib.Secrets;
 using System.Collections.Generic;
 
-[assembly: ConfigSection("RockLib.Secrets", typeof(List<ISecretsProvider>))]
+[assembly: ConfigSection("RockLib.Secrets", typeof(List<ISecret>))]
