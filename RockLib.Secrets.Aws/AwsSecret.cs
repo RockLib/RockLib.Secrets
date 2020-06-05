@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Amazon;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Newtonsoft.Json.Linq;
@@ -15,7 +12,7 @@ namespace RockLib.Secrets.Aws
     /// </summary>
     public class AwsSecret : ISecret
     {
-        private static readonly Lazy<IAmazonSecretsManager> _defaultSecretsManager = new Lazy<IAmazonSecretsManager>(() => new AmazonSecretsManagerClient());
+        private static IAmazonSecretsManager _defaultSecretsManager;
 
         private readonly string _exceptionMessage;
 
@@ -44,12 +41,22 @@ namespace RockLib.Secrets.Aws
             Key = key ?? throw new ArgumentNullException(nameof(key));
             AwsSecretName = awsSecretName ?? throw new ArgumentNullException(nameof(awsSecretName));
             AwsSecretKey = awsSecretKey;
-            SecretsManager = secretsManager ?? _defaultSecretsManager.Value;
+            SecretsManager = secretsManager ?? DefaultSecretsManager;
 
             if (awsSecretKey is null)
                 _exceptionMessage = $"No secret was found with the AwsSecretName '{AwsSecretName}' for the key '{Key}'";
             else
                 _exceptionMessage = $"No secret was found with the AwsSecretName '{AwsSecretName}' and AwsSecretKey '{AwsSecretKey}' for the key '{Key}'";
+        }
+
+        /// <summary>
+        /// Gets or sets the instance of <see cref="IAmazonSecretsManager"/> to be used by the
+        /// <see cref="AwsSecret"/> class when a secrets manager is not provided to its constructor.
+        /// </summary>
+        public static IAmazonSecretsManager DefaultSecretsManager
+        {
+            get => _defaultSecretsManager ?? (_defaultSecretsManager = new AmazonSecretsManagerClient());
+            set => _defaultSecretsManager = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
