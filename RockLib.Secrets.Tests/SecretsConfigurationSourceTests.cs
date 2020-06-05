@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using Moq;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Xunit;
 
@@ -25,51 +25,40 @@ namespace RockLib.Secrets.Tests
         [Fact(DisplayName = "Build method returns SecretsConfigurationProvider")]
         public void BuildMethodHappyPath1()
         {
-            var mockSecretsProvider = new Mock<ISecretsProvider>();
-            mockSecretsProvider.Setup(m => m.Secrets).Returns(new ISecret[0]);
-
+            var secret1 = MockSecret.Get("key1", "value1").Object;
+            var secret2 = MockSecret.Get("key2", "value2").Object;
+            
             var source = new SecretsConfigurationSource
             {
-                SecretsProvider = mockSecretsProvider.Object
+                Secrets = { secret1, secret2 }
             };
 
-            var builder = new ConfigurationBuilder();
+            var builder = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    ["RockLib.Secrets:Type"] = typeof(CustomSecret).AssemblyQualifiedName
+                });
 
-            var provider = source.Build(builder);
+            var provider = (SecretsConfigurationProvider)source.Build(builder);
 
-            provider.Should().BeOfType<SecretsConfigurationProvider>()
-                .Which.Source.Should().BeSameAs(source);
-        }
+            provider.Source.Should().BeSameAs(source);
 
-        [Fact(DisplayName = "Build method sets SecretsProvider property from builder when ServiceProvider is null")]
-        public void BuildMethodHappyPath2()
-        {
-            var mockSecretsProvider = new Mock<ISecretsProvider>();
-            mockSecretsProvider.Setup(m => m.Secrets).Returns(new ISecret[0]);
+            provider.Secrets.Should().NotBeSameAs(source.Secrets);
+            provider.Secrets.Should().BeEquivalentTo(source.Secrets);
 
-            var source = new SecretsConfigurationSource();
-
-            var builder = new ConfigurationBuilder();
-            builder.SetSecretsProvider(mockSecretsProvider.Object);
-
-            var provider = source.Build(builder);
-
-            var secretsConfigurationProvider = provider.Should().BeOfType<SecretsConfigurationProvider>().Subject;
-            secretsConfigurationProvider.Source.Should().BeSameAs(source);
-            secretsConfigurationProvider.Source.SecretsProvider.Should().BeSameAs(mockSecretsProvider.Object);
+            provider.Secrets[0].Should().BeSameAs(secret1);
+            provider.Secrets[1].Should().BeSameAs(secret2);
+            provider.Secrets[2].Should().BeOfType<CustomSecret>();
         }
 
         [Fact(DisplayName = "Build method sets OnSecretException property from builder when OnSecretException is null")]
-        public void BuildMethodHappyPath3()
+        public void BuildMethodHappyPath2()
         {
             Action<SecretExceptionContext> onSecretException = context => { };
 
-            var mockSecretsProvider = new Mock<ISecretsProvider>();
-            mockSecretsProvider.Setup(m => m.Secrets).Returns(new ISecret[0]);
-
             var source = new SecretsConfigurationSource
             {
-                SecretsProvider = mockSecretsProvider.Object
+                Secrets = { MockSecret.Get("key", "value").Object }
             };
 
             var builder = new ConfigurationBuilder();
@@ -79,18 +68,48 @@ namespace RockLib.Secrets.Tests
 
             var secretsConfigurationProvider = provider.Should().BeOfType<SecretsConfigurationProvider>().Subject;
             secretsConfigurationProvider.Source.Should().BeSameAs(source);
-            secretsConfigurationProvider.Source.OnSecretException.Should().BeSameAs(onSecretException);
+            source.OnSecretException.Should().BeSameAs(onSecretException);
         }
 
-        [Fact(DisplayName = "Build method throws when no SecretsProvider is provided")]
-        public void BuildMethodSadPath()
+        [Fact(DisplayName = "Build method only add secrets from configuration on the first call")]
+        public void BuildMethodHappyPath3()
         {
-            var source = new SecretsConfigurationSource();
-            var builder = new ConfigurationBuilder();
+            var secret = MockSecret.Get("key", "value").Object;
 
-            Action act = () => source.Build(builder);
+            var source = new SecretsConfigurationSource
+            {
+                Secrets = { secret }
+            };
 
-            act.Should().ThrowExactly<InvalidOperationException>().WithMessage("No secrets provider was provided.");
+            var builder = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    ["RockLib.Secrets:Type"] = typeof(CustomSecret).AssemblyQualifiedName
+                });
+
+            // Before building, source only contains the single secret that was added directly to it.
+            source.Secrets.Should().ContainSingle(s => ReferenceEquals(s, secret));
+
+            source.Build(builder);
+
+            // After building the first time, the secret defined in configuration has been added to the source.
+            source.Secrets.Should().HaveCount(2);
+            source.Secrets[0].Should().BeSameAs(secret);
+            source.Secrets[1].Should().BeOfType<CustomSecret>();
+
+            source.Build(builder);
+
+            // After building a second time, source hasn't changed.
+            source.Secrets.Should().HaveCount(2);
+            source.Secrets[0].Should().BeSameAs(secret);
+            source.Secrets[1].Should().BeOfType<CustomSecret>();
+        }
+
+        private class CustomSecret : ISecret
+        {
+            public string Key => "CustomSecret.Key";
+
+            public string GetValue() => "CustomSecret.GetValue()";
         }
     }
 }
