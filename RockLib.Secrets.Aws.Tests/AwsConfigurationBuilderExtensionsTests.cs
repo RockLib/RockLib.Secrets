@@ -9,7 +9,7 @@ namespace RockLib.Secrets.Aws.Tests
 {
     partial class AwsSecretTests
     {
-        [Fact(DisplayName = null)]
+        [Fact(DisplayName = "SetAmazonSecretsManager extension method sets AwsSecret.DefaultSecretsManager")]
         public void SetAmazonSecretsManagerMethodHappyPath()
         {
             var current = AwsSecret.DefaultSecretsManager;
@@ -31,7 +31,7 @@ namespace RockLib.Secrets.Aws.Tests
             }
         }
 
-        [Fact(DisplayName = null)]
+        [Fact(DisplayName = "SetAmazonSecretsManager extension method throws if secretsManager is null")]
         public void SetAmazonSecretsManagerMethodSadPath()
         {
             IConfigurationBuilder builder = new ConfigurationBuilder();

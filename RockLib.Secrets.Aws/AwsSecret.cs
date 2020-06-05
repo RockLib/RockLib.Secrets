@@ -13,13 +13,12 @@ namespace RockLib.Secrets.Aws
     public class AwsSecret : ISecret
     {
         private static IAmazonSecretsManager _defaultSecretsManager;
-
-        private readonly string _exceptionMessage;
+        private readonly string _exceptionMessageFormat;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AwsSecret"/> class for plaintext secrets.
         /// </summary>
-        /// <param name="key">The key used to retrieve the secret from the provider.</param>
+        /// <param name="key">The key of the secret.</param>
         /// <param name="awsSecretName">The name of the secret in AWS.</param>
         /// <param name="secretsManager">The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.</param>
         public AwsSecret(string key, string awsSecretName,
@@ -31,7 +30,7 @@ namespace RockLib.Secrets.Aws
         /// <summary>
         /// Initializes a new instance of the <see cref="AwsSecret"/> class for key/value secrets.
         /// </summary>
-        /// <param name="key">The key used to retrieve the secret from the provider.</param>
+        /// <param name="key">The key of the secret.</param>
         /// <param name="awsSecretName">The name of the secret in AWS.</param>
         /// <param name="awsSecretKey">The key of the secret in AWS.</param>
         /// <param name="secretsManager">The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.</param>
@@ -44,9 +43,9 @@ namespace RockLib.Secrets.Aws
             SecretsManager = secretsManager ?? DefaultSecretsManager;
 
             if (awsSecretKey is null)
-                _exceptionMessage = $"No secret was found with the AwsSecretName '{AwsSecretName}' for the key '{Key}'";
+                _exceptionMessageFormat = $"No secret was found with the AwsSecretName '{AwsSecretName}' for the key '{Key}': {{0}}";
             else
-                _exceptionMessage = $"No secret was found with the AwsSecretName '{AwsSecretName}' and AwsSecretKey '{AwsSecretKey}' for the key '{Key}'";
+                _exceptionMessageFormat = $"No secret was found with the AwsSecretName '{AwsSecretName}' and AwsSecretKey '{AwsSecretKey}' for the key '{Key}': {{0}}";
         }
 
         /// <summary>
@@ -94,7 +93,7 @@ namespace RockLib.Secrets.Aws
             var response = Sync.OverAsync(() => SecretsManager.GetSecretValueAsync(request));
 
             if (response == null)
-                throw new KeyNotFoundException(_exceptionMessage);
+                throw new KeyNotFoundException(string.Format(_exceptionMessageFormat, "Response was null."));
 
             if (response.SecretString != null)
             {
@@ -104,7 +103,7 @@ namespace RockLib.Secrets.Aws
                     if (secret != null)
                         return secret.ToString();
 
-                    throw new KeyNotFoundException(_exceptionMessage);
+                    throw new KeyNotFoundException(string.Format(_exceptionMessageFormat, $"Response did not contain item with the name '{AwsSecretKey}'."));
                 }
 
                 return response.SecretString;
@@ -113,7 +112,7 @@ namespace RockLib.Secrets.Aws
             if (response.SecretBinary != null)
                 return Convert.ToBase64String(response.SecretBinary.ToArray());
 
-            throw new KeyNotFoundException(_exceptionMessage);
+            throw new KeyNotFoundException(string.Format(_exceptionMessageFormat, "Response did not contain a value for SecretString or SecretBinary."));
         }
     }
 }
