@@ -1,6 +1,7 @@
 ﻿using Amazon.SecretsManager;
 using FluentAssertions;
 using Moq;
+using System;
 using Xunit;
 
 namespace RockLib.Secrets.Aws.Tests
@@ -30,6 +31,21 @@ namespace RockLib.Secrets.Aws.Tests
             awsSecret.AwsSecretName.Should().Be(awsSecretName);
             awsSecret.AwsSecretKey.Should().Be(awsSecretKey);
             awsSecret.SecretsManager.Should().BeSameAs(awsSecretsManager);
+        }
+
+        [Fact(DisplayName = "AddAwsSecret throws is builder is null")]
+        public void AddAwsSecretSadPath()
+        {
+            var key = "key";
+            var awsSecretName = "awsSecretName";
+            var awsSecretKey = "aswSecretKey";
+            var awsSecretsManager = new Mock<IAmazonSecretsManager>().Object;
+
+            ISecretsConfigurationBuilder builder = null;
+
+            Action act = () => builder.AddAwsSecret(key, awsSecretName, awsSecretKey, awsSecretsManager);
+
+            act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*builder*");
         }
     }
 }

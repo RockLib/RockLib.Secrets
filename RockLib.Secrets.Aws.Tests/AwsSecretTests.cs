@@ -14,48 +14,8 @@ namespace RockLib.Secrets.Aws.Tests
 {
     public partial class AwsSecretTests
     {
-        [Fact(DisplayName = "Constructor 1 set properties")]
-        public void Constructor1HappyPath1()
-        {
-            var secretsManager = new Mock<IAmazonSecretsManager>().Object;
-
-            var secret = new AwsSecret("key", "awsSecretName", secretsManager);
-
-            secret.Key.Should().Be("key");
-            secret.AwsSecretName.Should().Be("awsSecretName");
-            secret.AwsSecretKey.Should().BeNull();
-            secret.SecretsManager.Should().BeSameAs(secretsManager);
-        }
-
-        [Fact(DisplayName = "Constructor 1 sets SecretsManager to DefaultSecretsManager if not specified")]
-        public void Constructor1HappyPath2()
-        {
-            var secret = new AwsSecret("key", "awsSecretName");
-
-            secret.Key.Should().Be("key");
-            secret.AwsSecretName.Should().Be("awsSecretName");
-            secret.AwsSecretKey.Should().BeNull();
-            secret.SecretsManager.Should().BeSameAs(AwsSecret.DefaultSecretsManager);
-        }
-
-        [Fact(DisplayName = "Constructor 1 throws if key is null")]
-        public void Constructor1SadPath1()
-        {
-            Action act = () => new AwsSecret(null, "awsSecretName");
-
-            act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*key*");
-        }
-
-        [Fact(DisplayName = "Constructor 1 throws if awsSecretName is null")]
-        public void Constructor1SadPath2()
-        {
-            Action act = () => new AwsSecret("key", null);
-
-            act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*awsSecretName*");
-        }
-
-        [Fact(DisplayName = "Constructor 2 sets properties")]
-        public void Constructor2HappyPath1()
+        [Fact(DisplayName = "Constructor sets properties")]
+        public void ConstructorHappyPath1()
         {
             var secretsManager = new Mock<IAmazonSecretsManager>().Object;
 
@@ -67,8 +27,21 @@ namespace RockLib.Secrets.Aws.Tests
             secret.SecretsManager.Should().BeSameAs(secretsManager);
         }
 
-        [Fact(DisplayName = "Constructor 2 sets SecretsManager to DefaultSecretsManager if not specified")]
-        public void Constructor2HappyPath2()
+        [Fact(DisplayName = "Constructor does not require awsSecretKey parameter")]
+        public void ConstructorHappyPath2()
+        {
+            var secretsManager = new Mock<IAmazonSecretsManager>().Object;
+
+            var secret = new AwsSecret("key", "awsSecretName", secretsManager: secretsManager);
+
+            secret.Key.Should().Be("key");
+            secret.AwsSecretName.Should().Be("awsSecretName");
+            secret.AwsSecretKey.Should().BeNull();
+            secret.SecretsManager.Should().BeSameAs(secretsManager);
+        }
+
+        [Fact(DisplayName = "Constructor sets SecretsManager to DefaultSecretsManager if not specified")]
+        public void ConstructorHappyPath3()
         {
             var secret = new AwsSecret("key", "awsSecretName", "awsSecretKey");
 
@@ -78,16 +51,16 @@ namespace RockLib.Secrets.Aws.Tests
             secret.SecretsManager.Should().BeSameAs(AwsSecret.DefaultSecretsManager);
         }
 
-        [Fact(DisplayName = "Constructor 2 throws if key is null")]
-        public void Constructor2SadPath1()
+        [Fact(DisplayName = "Constructor throws if key is null")]
+        public void ConstructorSadPath1()
         {
             Action act = () => new AwsSecret(null, "awsSecretName");
 
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*key*");
         }
 
-        [Fact(DisplayName = "Constructor 2 throws if awsSecretName is null")]
-        public void Constructor2SadPath2()
+        [Fact(DisplayName = "Constructor throws if awsSecretName is null")]
+        public void ConstructorSadPath2()
         {
             Action act = () => new AwsSecret("key", null);
 
@@ -172,7 +145,7 @@ namespace RockLib.Secrets.Aws.Tests
             mockSecretsManager.Setup(m => m.GetSecretValueAsync(It.IsAny<GetSecretValueRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
-            var secret = new AwsSecret("myKey", "myAwsSecretName", mockSecretsManager.Object);
+            var secret = new AwsSecret("myKey", "myAwsSecretName", secretsManager: mockSecretsManager.Object);
 
             var value = secret.GetValue();
 
@@ -197,7 +170,7 @@ namespace RockLib.Secrets.Aws.Tests
             mockSecretsManager.Setup(m => m.GetSecretValueAsync(It.IsAny<GetSecretValueRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
-            var secret = new AwsSecret("myKey", "myAwsSecretName", mockSecretsManager.Object);
+            var secret = new AwsSecret("myKey", "myAwsSecretName", secretsManager: mockSecretsManager.Object);
 
             var value = secret.GetValue();
 

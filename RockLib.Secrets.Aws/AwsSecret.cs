@@ -16,25 +16,13 @@ namespace RockLib.Secrets.Aws
         private readonly string _exceptionMessageFormat;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AwsSecret"/> class for plaintext secrets.
-        /// </summary>
-        /// <param name="key">The key of the secret.</param>
-        /// <param name="awsSecretName">The name of the secret in AWS.</param>
-        /// <param name="secretsManager">The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.</param>
-        public AwsSecret(string key, string awsSecretName,
-            [DefaultType(typeof(AmazonSecretsManagerClient))]IAmazonSecretsManager secretsManager = null)
-            : this(key, awsSecretName, null, secretsManager)
-        {
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="AwsSecret"/> class for key/value secrets.
         /// </summary>
         /// <param name="key">The key of the secret.</param>
         /// <param name="awsSecretName">The name of the secret in AWS.</param>
         /// <param name="awsSecretKey">The key of the secret in AWS.</param>
         /// <param name="secretsManager">The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.</param>
-        public AwsSecret(string key, string awsSecretName, string awsSecretKey,
+        public AwsSecret(string key, string awsSecretName, string awsSecretKey = null,
             [DefaultType(typeof(AmazonSecretsManagerClient))]IAmazonSecretsManager secretsManager = null)
         {
             Key = key ?? throw new ArgumentNullException(nameof(key));
