@@ -1,3 +1,4 @@
+using Amazon;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using FluentAssertions;
@@ -14,6 +15,11 @@ namespace RockLib.Secrets.Aws.Tests
 {
     public partial class AwsSecretTests
     {
+        static AwsSecretTests()
+        {
+            AwsSecret.DefaultSecretsManager = new AmazonSecretsManagerClient(RegionEndpoint.USEast1);
+        }
+
         [Fact(DisplayName = "Constructor sets properties")]
         public void ConstructorHappyPath1()
         {
@@ -93,7 +99,7 @@ namespace RockLib.Secrets.Aws.Tests
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*value*");
         }
 
-        [Fact(DisplayName = "DefaultSecretsManager property has a default value of type AmazonSecretsManagerClient")]
+        [Fact(DisplayName = "DefaultSecretsManager property has a default value of type AmazonSecretsManagerClient", Skip = "Can only be run on a machine with AWS credentials")]
         public void DefaultSecretsManagerPropertyDefaultValue()
         {
             var current = AwsSecret.DefaultSecretsManager;
