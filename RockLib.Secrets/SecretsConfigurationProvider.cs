@@ -28,9 +28,9 @@ namespace RockLib.Secrets
                 throw new ArgumentException("Source must contain at least one secret.", nameof(source));
             if (Secrets.Any(s => s is null))
                 throw new ArgumentException("Source cannot contain any null secrets.", nameof(source));
-            if (Secrets.Any(s => s.Key is null))
+            if (Secrets.Any(s => s.ConfigurationKey is null))
                 throw new ArgumentException("Source cannot contain any secrets with a null Key.", nameof(source));
-            if (Secrets.Select(s => s.Key).Distinct(StringComparer.OrdinalIgnoreCase).Count() != Secrets.Count)
+            if (Secrets.Select(s => s.ConfigurationKey).Distinct(StringComparer.OrdinalIgnoreCase).Count() != Secrets.Count)
                 throw new ArgumentException("Source cannot contain any secrets with duplicate Keys.", nameof(source));
         }
 
@@ -55,12 +55,12 @@ namespace RockLib.Secrets
                 {
                     try
                     {
-                        return new { secret.Key, Value = secret.GetValue() };
+                        return new { secret.ConfigurationKey, Value = secret.GetValue() };
                     }
                     catch (Exception ex)
                     {
                         Source.OnSecretException?.Invoke(new SecretExceptionContext(this, secret, ex));
-                        return new { secret.Key, Value = (string)null };
+                        return new { secret.ConfigurationKey, Value = (string)null };
                     }
                 });
 
@@ -69,16 +69,16 @@ namespace RockLib.Secrets
                 if (Data.Count == 0)
                 {
                     foreach (var secret in secrets)
-                        Data.Add(secret.Key, secret.Value);
+                        Data.Add(secret.ConfigurationKey, secret.Value);
                 }
                 else
                 {
                     foreach (var secret in secrets)
                     {
-                        if (secret.Value != null && Data[secret.Key] != secret.Value)
+                        if (secret.Value != null && Data[secret.ConfigurationKey] != secret.Value)
                         {
                             secretChanged = true;
-                            Data[secret.Key] = secret.Value;
+                            Data[secret.ConfigurationKey] = secret.Value;
                         }
                     }
                 }

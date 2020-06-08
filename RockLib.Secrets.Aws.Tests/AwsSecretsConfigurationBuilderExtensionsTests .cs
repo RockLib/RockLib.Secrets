@@ -17,33 +17,33 @@ namespace RockLib.Secrets.Aws.Tests
                 .Setup(bm => bm.AddSecret(It.IsAny<ISecret>()))
                 .Callback<ISecret>(s => secret = s);
 
-            var key = "key";
-            var awsSecretName = "awsSecretName";
-            var awsSecretKey = "aswSecretKey";
+            var configurationKey = "configurationKey";
+            var secretId = "secretId";
+            var secretKey = "secretKey";
             var awsSecretsManager = new Mock<IAmazonSecretsManager>().Object;
 
-            builderMock.Object.AddAwsSecret(key, awsSecretName, awsSecretKey, awsSecretsManager);
+            builderMock.Object.AddAwsSecret(configurationKey, secretId, secretKey, awsSecretsManager);
 
             builderMock.Verify(bm => bm.AddSecret(It.IsAny<ISecret>()), Times.Once);
 
             var awsSecret = secret.Should().BeOfType<AwsSecret>().Subject;
-            awsSecret.Key.Should().Be(key);
-            awsSecret.AwsSecretName.Should().Be(awsSecretName);
-            awsSecret.AwsSecretKey.Should().Be(awsSecretKey);
+            awsSecret.ConfigurationKey.Should().Be(configurationKey);
+            awsSecret.SecretId.Should().Be(secretId);
+            awsSecret.SecretKey.Should().Be(secretKey);
             awsSecret.SecretsManager.Should().BeSameAs(awsSecretsManager);
         }
 
         [Fact(DisplayName = "AddAwsSecret throws is builder is null")]
         public void AddAwsSecretSadPath()
         {
-            var key = "key";
-            var awsSecretName = "awsSecretName";
-            var awsSecretKey = "aswSecretKey";
+            var configurationKey = "configurationKey";
+            var secretId = "secretId";
+            var secretKey = "secretKey";
             var awsSecretsManager = new Mock<IAmazonSecretsManager>().Object;
 
             ISecretsConfigurationBuilder builder = null;
 
-            Action act = () => builder.AddAwsSecret(key, awsSecretName, awsSecretKey, awsSecretsManager);
+            Action act = () => builder.AddAwsSecret(configurationKey, secretId, secretKey, awsSecretsManager);
 
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*builder*");
         }

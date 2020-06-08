@@ -107,7 +107,7 @@ namespace RockLib.Secrets.Tests
 
         private class CustomSecret : ISecret
         {
-            public string Key => "CustomSecret.Key";
+            public string ConfigurationKey => "CustomSecret.Key";
 
             public string GetValue() => "CustomSecret.GetValue()";
         }

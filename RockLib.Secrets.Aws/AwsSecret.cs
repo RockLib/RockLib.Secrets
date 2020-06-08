@@ -18,22 +18,22 @@ namespace RockLib.Secrets.Aws
         /// <summary>
         /// Initializes a new instance of the <see cref="AwsSecret"/> class for key/value secrets.
         /// </summary>
-        /// <param name="key">The key of the secret.</param>
-        /// <param name="awsSecretName">The name of the secret in AWS.</param>
-        /// <param name="awsSecretKey">The key of the secret in AWS.</param>
+        /// <param name="configurationKey">The configuration key for the secret.</param>
+        /// <param name="secretId">The Amazon Resource Name (ARN) or the friendly name of the secret.</param>
+        /// <param name="secretKey">The key of the secret in AWS.</param>
         /// <param name="secretsManager">The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.</param>
-        public AwsSecret(string key, string awsSecretName, string awsSecretKey = null,
+        public AwsSecret(string configurationKey, string secretId, string secretKey = null,
             [DefaultType(typeof(AmazonSecretsManagerClient))]IAmazonSecretsManager secretsManager = null)
         {
-            Key = key ?? throw new ArgumentNullException(nameof(key));
-            AwsSecretName = awsSecretName ?? throw new ArgumentNullException(nameof(awsSecretName));
-            AwsSecretKey = awsSecretKey;
+            ConfigurationKey = configurationKey ?? throw new ArgumentNullException(nameof(configurationKey));
+            SecretId = secretId ?? throw new ArgumentNullException(nameof(secretId));
+            SecretKey = secretKey;
             SecretsManager = secretsManager ?? DefaultSecretsManager;
 
-            if (awsSecretKey is null)
-                _exceptionMessageFormat = $"No secret was found with the AwsSecretName '{AwsSecretName}' for the key '{Key}': {{0}}";
+            if (secretKey is null)
+                _exceptionMessageFormat = $"No secret was found with the AwsSecretName '{SecretId}' for the key '{ConfigurationKey}': {{0}}";
             else
-                _exceptionMessageFormat = $"No secret was found with the AwsSecretName '{AwsSecretName}' and AwsSecretKey '{AwsSecretKey}' for the key '{Key}': {{0}}";
+                _exceptionMessageFormat = $"No secret was found with the AwsSecretName '{SecretId}' and AwsSecretKey '{SecretKey}' for the key '{ConfigurationKey}': {{0}}";
         }
 
         /// <summary>
@@ -47,19 +47,19 @@ namespace RockLib.Secrets.Aws
         }
 
         /// <summary>
-        /// Gets the key of the secret.
+        /// Gets the configuration key for the secret.
         /// </summary>
-        public string Key { get; }
+        public string ConfigurationKey { get; }
 
         /// <summary>
-        /// Gets the name of the secret in AWS.
+        /// Gets the Amazon Resource Name (ARN) or the friendly name of the secret.
         /// </summary>
-        public string AwsSecretName { get; }
+        public string SecretId { get; }
 
         /// <summary>
-        /// Gets the key of the secret in AWS.
+        /// Gets the "Secret Key" of the secret.
         /// </summary>
-        public string AwsSecretKey { get; }
+        public string SecretKey { get; }
 
         /// <summary>
         /// Gets the <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.
@@ -74,7 +74,7 @@ namespace RockLib.Secrets.Aws
         {
             var request = new GetSecretValueRequest
             {
-                SecretId = AwsSecretName
+                SecretId = SecretId
             };
 
             // NOTE: Returns an async calls value safely.
@@ -85,13 +85,13 @@ namespace RockLib.Secrets.Aws
 
             if (response.SecretString != null)
             {
-                if (AwsSecretKey != null)
+                if (SecretKey != null)
                 {
-                    var secret = JObject.Parse(response.SecretString)[AwsSecretKey];
+                    var secret = JObject.Parse(response.SecretString)[SecretKey];
                     if (secret != null)
                         return secret.ToString();
 
-                    throw new KeyNotFoundException(string.Format(_exceptionMessageFormat, $"Response did not contain item with the name '{AwsSecretKey}'."));
+                    throw new KeyNotFoundException(string.Format(_exceptionMessageFormat, $"Response did not contain item with the name '{SecretKey}'."));
                 }
 
                 return response.SecretString;

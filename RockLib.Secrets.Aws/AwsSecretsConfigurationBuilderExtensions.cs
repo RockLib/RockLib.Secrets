@@ -12,18 +12,18 @@ namespace RockLib.Secrets.Aws
         /// Adds an <see cref="AwsSecret"/> to the <see cref="ISecretsConfigurationBuilder"/>.
         /// </summary>
         /// <param name="builder">The builder the secret is beind added to.</param>
-        /// <param name="key">The key used to retrieve the secret from the provider.</param>
-        /// <param name="awsSecretName">The name of the secret in AWS.</param>
-        /// <param name="awsSecretKey">The key of the secret in AWS.</param>
+        /// <param name="configurationKey">The configuration key for the secret.</param>
+        /// <param name="secretId">The Amazon Resource Name (ARN) or the friendly name of the secret.</param>
+        /// <param name="secretKey">The key of the secret in AWS.</param>
         /// <param name="secretsManager">The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.</param>
         /// <returns>The same <see cref="ISecretsConfigurationBuilder"/>.</returns>
         public static ISecretsConfigurationBuilder AddAwsSecret(this ISecretsConfigurationBuilder builder,
-            string key, string awsSecretName, string awsSecretKey = null, IAmazonSecretsManager secretsManager = null)
+            string configurationKey, string secretId, string secretKey = null, IAmazonSecretsManager secretsManager = null)
         {
             if (builder is null)
                 throw new ArgumentNullException(nameof(builder));
 
-            return builder.AddSecret(new AwsSecret(key, awsSecretName, awsSecretKey, secretsManager));
+            return builder.AddSecret(new AwsSecret(configurationKey, secretId, secretKey, secretsManager));
         }
     }
 }

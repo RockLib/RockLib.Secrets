@@ -11,7 +11,7 @@ namespace RockLib.Secrets.Tests
         public static Mock<ISecret> Get(string key, string value)
         {
             var mockSecret = new Mock<ISecret>();
-            mockSecret.Setup(m => m.Key).Returns(key);
+            mockSecret.Setup(m => m.ConfigurationKey).Returns(key);
             mockSecret.Setup(m => m.GetValue()).Returns(value);
             return mockSecret;
         }
@@ -22,7 +22,7 @@ namespace RockLib.Secrets.Tests
         public static Mock<ISecret> Get(string key, Exception exception)
         {
             var mockSecret = new Mock<ISecret>();
-            mockSecret.Setup(m => m.Key).Returns(key);
+            mockSecret.Setup(m => m.ConfigurationKey).Returns(key);
             mockSecret.Setup(m => m.GetValue()).Throws(exception);
             return mockSecret;
         }
