@@ -10,12 +10,10 @@
 
 - [Getting started](docs/GettingStarted.md)
 - How to:
-  - Add secrets directly to a configuration builder
-    - TODO: additional description
-  - Add secrets defined in configuration (e.g. appsettings.json)
-    - TODO: additional description
-  - Consume secrets from configuration
-    - Basically, there's nothing special to do
+  - [Add secrets directly to a configuration builder](docs/ConfigurationBuilder.md)
+  - [Define secrets in configuration](docs/Configuration.md)
+  - [Consume secrets from configuration](docs/Usage.md)
+  - [Configure AWS secrets](docs/AwsSecret.md)
 - API Reference:
   - [RockLib.Secrets](https://www.fuget.org/packages/RockLib.Secrets)
   - [RockLib.Secrets.Aws](https://www.fuget.org/packages/RockLib.Secrets.Aws)
