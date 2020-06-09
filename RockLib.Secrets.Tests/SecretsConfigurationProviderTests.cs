@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -12,17 +11,20 @@ namespace RockLib.Secrets.Tests
         [Fact(DisplayName = "Constructor sets properties")]
         public void ConstructorHappyPath()
         {
-            var mockSecretsProvider = new Mock<ISecretsProvider>();
-            mockSecretsProvider.Setup(m => m.Secrets).Returns(new ISecret[0]);
+            var secret1 = MockSecret.Get("key1", "value1").Object;
+            var secret2 = MockSecret.Get("key2", "value2").Object;
 
             var source = new SecretsConfigurationSource
             {
-                SecretsProvider = mockSecretsProvider.Object
+                Secrets = { secret1, secret2 }
             };
 
             var provider = new SecretsConfigurationProvider(source);
 
             provider.Source.Should().BeSameAs(source);
+
+            provider.Secrets.Should().NotBeSameAs(source.Secrets);
+            provider.Secrets.Should().BeEquivalentTo(source.Secrets);
         }
 
         [Fact(DisplayName = "Constructor throws when source parameter is null")]
@@ -33,109 +35,73 @@ namespace RockLib.Secrets.Tests
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*source*");
         }
 
-        [Fact(DisplayName = "Constructor throws when source.SecretsProvider is null")]
+        [Fact(DisplayName = "Constructor throws when source.Secrets contains no items")]
         public void ConstructorSadPath2()
         {
-            var source = new SecretsConfigurationSource
-            {
-                SecretsProvider = null
-            };
+            var source = new SecretsConfigurationSource();
 
             Action act = () => new SecretsConfigurationProvider(source);
 
-            act.Should().ThrowExactly<ArgumentException>().WithMessage("SecretsProvider cannot be null.*source*");
+            act.Should().ThrowExactly<ArgumentException>().WithMessage("Source must contain at least one secret.*source*");
         }
 
-        [Fact(DisplayName = "Constructor throws when source.SecretsProvider.Secrets is null")]
+        [Fact(DisplayName = "Constructor throws when source.Secrets contains null items")]
         public void ConstructorSadPath3()
         {
-            var mockSecretsProvider = new Mock<ISecretsProvider>();
-            mockSecretsProvider.Setup(m => m.Secrets).Returns((IReadOnlyList<ISecret>)null);
+            var secret1 = MockSecret.Get("key1", "value1").Object;
+            ISecret secret2 = null;
 
             var source = new SecretsConfigurationSource
             {
-                SecretsProvider = mockSecretsProvider.Object
+                Secrets = { secret1, secret2 }
             };
 
             Action act = () => new SecretsConfigurationProvider(source);
 
-            act.Should().ThrowExactly<ArgumentException>().WithMessage("SecretsProvider.Secrets cannot be null.*source*");
+            act.Should().ThrowExactly<ArgumentException>().WithMessage("Source cannot contain any null secrets.*source*");
         }
 
-        [Fact(DisplayName = "Constructor throws when source.SecretsProvider.Secrets contains null items")]
+        [Fact(DisplayName = "Constructor throws when source.Secrets contains items with null Key")]
         public void ConstructorSadPath4()
         {
-            var mockSecretsProvider = new Mock<ISecretsProvider>();
-            mockSecretsProvider.Setup(m => m.Secrets).Returns(new ISecret[] { null });
+            var secret1 = MockSecret.Get("key1", "value1").Object;
+            var secret2 = MockSecret.Get(null, "value2").Object;
 
             var source = new SecretsConfigurationSource
             {
-                SecretsProvider = mockSecretsProvider.Object
+                Secrets = { secret1, secret2 }
             };
 
             Action act = () => new SecretsConfigurationProvider(source);
 
-            act.Should().ThrowExactly<ArgumentException>().WithMessage("SecretsProvider.Secrets cannot contain any null items.*source*");
-        }
-
-        [Fact(DisplayName = "Constructor throws when source.SecretsProvider.Secrets contains items with null Key")]
-        public void ConstructorSadPath5()
-        {
-            var mockSecret = new Mock<ISecret>();
-            mockSecret.Setup(m => m.Key).Returns((string)null);
-
-            var mockSecretsProvider = new Mock<ISecretsProvider>();
-            mockSecretsProvider.Setup(m => m.Secrets).Returns(new ISecret[] { mockSecret.Object });
-
-            var source = new SecretsConfigurationSource
-            {
-                SecretsProvider = mockSecretsProvider.Object
-            };
-
-            Action act = () => new SecretsConfigurationProvider(source);
-
-            act.Should().ThrowExactly<ArgumentException>().WithMessage("SecretsProvider.Secrets cannot contain any items with a null Key.*source*");
+            act.Should().ThrowExactly<ArgumentException>().WithMessage("Source cannot contain any secrets with a null Key.*source*");
         }
 
         [Fact(DisplayName = "Constructor throws when source.SecretsProvider.Secrets contains items with duplicate keys")]
-        public void ConstructorSadPath6()
+        public void ConstructorSadPath5()
         {
-            var mockSecret1 = new Mock<ISecret>();
-            mockSecret1.Setup(m => m.Key).Returns("foo");
-
-            var mockSecret2 = new Mock<ISecret>();
-            mockSecret2.Setup(m => m.Key).Returns("foo");
-
-            var mockSecretsProvider = new Mock<ISecretsProvider>();
-            mockSecretsProvider.Setup(m => m.Secrets).Returns(new ISecret[] { mockSecret1.Object, mockSecret2.Object });
+            var secret1 = MockSecret.Get("key1", "value1").Object;
+            var secret2 = MockSecret.Get("key1", "value2").Object;
 
             var source = new SecretsConfigurationSource
             {
-                SecretsProvider = mockSecretsProvider.Object
+                Secrets = { secret1, secret2 }
             };
 
             Action act = () => new SecretsConfigurationProvider(source);
 
-            act.Should().ThrowExactly<ArgumentException>().WithMessage("SecretsProvider.Secrets cannot contain any items with duplicate Keys.*source*");
+            act.Should().ThrowExactly<ArgumentException>().WithMessage("Source cannot contain any secrets with duplicate Keys.*source*");
         }
 
         [Fact(DisplayName = "Load method adds each secret's key and value to the provider's Data")]
         public void LoadMethodHappyPath()
         {
-            var mockSecret1 = new Mock<ISecret>();
-            mockSecret1.Setup(m => m.Key).Returns("foo");
-            mockSecret1.Setup(m => m.GetValue()).Returns("abc");
-
-            var mockSecret2 = new Mock<ISecret>();
-            mockSecret2.Setup(m => m.Key).Returns("bar");
-            mockSecret2.Setup(m => m.GetValue()).Returns("123");
-
-            var mockSecretsProvider = new Mock<ISecretsProvider>();
-            mockSecretsProvider.Setup(m => m.Secrets).Returns(new[] { mockSecret1.Object, mockSecret2.Object });
+            var secret1 = MockSecret.Get("foo", "abc").Object;
+            var secret2 = MockSecret.Get("bar", (string)null).Object;
 
             var source = new SecretsConfigurationSource
             {
-                SecretsProvider = mockSecretsProvider.Object,
+                Secrets = { secret1, secret2 },
                 ReloadMilliseconds = Timeout.Infinite
             };
 
@@ -147,7 +113,7 @@ namespace RockLib.Secrets.Tests
             fooValue.Should().Be("abc");
 
             provider.TryGet("bar", out var barValue).Should().BeTrue();
-            barValue.Should().Be("123");
+            barValue.Should().BeNull();
         }
 
         [Fact(DisplayName = "Load method invokes exception handler when ISecret.GetValue method throws")]
@@ -155,16 +121,8 @@ namespace RockLib.Secrets.Tests
         {
             var exception = new Exception();
 
-            var mockSecret1 = new Mock<ISecret>();
-            mockSecret1.Setup(m => m.Key).Returns("foo");
-            mockSecret1.Setup(m => m.GetValue()).Returns("abc");
-
-            var mockSecret2 = new Mock<ISecret>();
-            mockSecret2.Setup(m => m.Key).Returns("bar");
-            mockSecret2.Setup(m => m.GetValue()).Throws(exception);
-
-            var mockSecretsProvider = new Mock<ISecretsProvider>();
-            mockSecretsProvider.Setup(m => m.Secrets).Returns(new[] { mockSecret1.Object, mockSecret2.Object });
+            var mockSecret1 = MockSecret.Get("foo", "abc");
+            var mockSecret2 = MockSecret.Get("bar", exception);
 
             var caughtExceptions = new List<Exception>();
 
@@ -175,7 +133,7 @@ namespace RockLib.Secrets.Tests
 
             var source = new SecretsConfigurationSource
             {
-                SecretsProvider = mockSecretsProvider.Object,
+                Secrets = { mockSecret1.Object, mockSecret2.Object },
                 ReloadMilliseconds = Timeout.Infinite,
                 OnSecretException = OnSecretException
             };
@@ -187,7 +145,8 @@ namespace RockLib.Secrets.Tests
             provider.TryGet("foo", out var fooValue).Should().BeTrue();
             fooValue.Should().Be("abc");
 
-            provider.TryGet("bar", out _).Should().BeFalse();
+            provider.TryGet("bar", out var barValue).Should().BeTrue();
+            barValue.Should().BeNull();
 
             caughtExceptions.Should().HaveCount(1);
             caughtExceptions[0].Should().BeSameAs(exception);

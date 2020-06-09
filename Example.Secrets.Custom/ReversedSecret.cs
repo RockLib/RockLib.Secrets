@@ -9,11 +9,11 @@ namespace Example.Secrets.Custom
 
         public ReversedSecret(string key, string secret)
         {
-            Key = key;
+            ConfigurationKey = key;
             _secret = secret;
         }
 
-        public string Key { get; }
+        public string ConfigurationKey { get; }
 
         public string GetValue()
         {

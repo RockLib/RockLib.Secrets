@@ -24,13 +24,13 @@ namespace SecretsTutorial
     {
         private readonly string _secret;
 
-        public ReversedSecret(string key, string secret)
+        public ReversedSecret(string configurationKey, string secret)
         {
-            Key = key;
+            ConfigurationKey = configurationKey;
             _secret = secret;
         }
 
-        public string Key { get; }
+        public string ConfigurationKey { get; }
 
         public string GetValue()
         {
@@ -53,21 +53,21 @@ Add a new JSON file to the project named 'appsettings.json'. Set its 'Copy to Ou
     {
       "Type": "Example.Secrets.Custom.ReversedSecret, Example.Secrets.Custom",
       "Value": {
-        "Key": "FirstSecretKey",
+        "ConfigurationKey": "FirstSecretKey",
         "Secret": "terces tsrif eht si sihT"
       }
     },
     {
       "Type": "Example.Secrets.Custom.ReversedSecret, Example.Secrets.Custom",
       "Value": {
-        "Key": "SecondSecretKey",
+        "ConfigurationKey": "SecondSecretKey",
         "Secret": "terces dnoces eht si sihT"
       }
     },
     {
       "Type": "Example.Secrets.Custom.ReversedSecret, Example.Secrets.Custom",
       "Value": {
-        "Key": "ThirdSecretKey",
+        "ConfigurationKey": "ThirdSecretKey",
         "Secret": "terces driht eht si sihT"
       }
     }

@@ -6,9 +6,9 @@
     public interface ISecret
     {
         /// <summary>
-        /// Gets the key of the secret.
+        /// Gets the configuration key for the secret.
         /// </summary>
-        string Key { get; }
+        string ConfigurationKey { get; }
 
         /// <summary>
         /// Gets the value of the secret.

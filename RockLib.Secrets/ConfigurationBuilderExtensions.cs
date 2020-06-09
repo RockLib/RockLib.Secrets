@@ -16,20 +16,29 @@ namespace RockLib.Secrets
         public const string SecretExceptionHandlerKey = "RockLib.SecretExceptionHandler";
 
         /// <summary>
-        /// Adds a secrets configuration source to the <paramref name="builder"/>.
+        /// Adds a secrets configuration source to the <paramref name="builder"/>, returning
+        /// an <see cref="ISecretsConfigurationBuilder"/> used to define the source's secrets.
         /// </summary>
         /// <param name="builder">The <see cref="IConfigurationBuilder"/> to add to.</param>
-        /// <returns>The <see cref="IConfigurationBuilder"/></returns>
+        /// <returns>
+        /// An <see cref="ISecretsConfigurationBuilder"/> used to define the source's secrets.
+        /// </returns>
         public static ISecretsConfigurationBuilder AddRockLibSecrets(this IConfigurationBuilder builder) =>
             builder.AddRockLibSecrets(null);
 
         /// <summary>
-        /// Adds a secrets configuration source to the <paramref name="builder"/>.
+        /// Adds a secrets configuration source to the <paramref name="builder"/>, returning
+        /// an <see cref="ISecretsConfigurationBuilder"/> used to define the source's secrets.
         /// </summary>
         /// <param name="builder">The <see cref="IConfigurationBuilder"/> to add to.</param>
-        /// <param name="configureSource">Configures the secrets configuration source.</param>
-        /// <returns>The <see cref="IConfigurationBuilder"/></returns>
-        public static ISecretsConfigurationBuilder AddRockLibSecrets(this IConfigurationBuilder builder, Action<SecretsConfigurationSource> configureSource)
+        /// <param name="configureSource">
+        /// Configures the secrets configuration source. Can be <see langword="null"/>.
+        /// </param>
+        /// <returns>
+        /// An <see cref="ISecretsConfigurationBuilder"/> used to define the source's secrets.
+        /// </returns>
+        public static ISecretsConfigurationBuilder AddRockLibSecrets(this IConfigurationBuilder builder,
+            Action<SecretsConfigurationSource> configureSource)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));

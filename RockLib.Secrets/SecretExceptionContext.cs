@@ -10,18 +10,29 @@ namespace RockLib.Secrets
         /// <summary>
         /// Initializes a new instance of the <see cref="SecretExceptionContext"/> class.
         /// </summary>
-        /// <param name="provider">The <see cref="SecretsConfigurationProvider"/> that caused the exception.</param>
+        /// <param name="provider">
+        /// The <see cref="SecretsConfigurationProvider"/> that invoked the <see cref="ISecret.GetValue"/>
+        /// method that caused the exception.
+        /// </param>
+        /// <param name="secret">The <see cref="ISecret"/> that caused the exception.</param>
         /// <param name="exception">The exception that occurred in <see cref="ISecret.GetValue"/>.</param>
-        public SecretExceptionContext(SecretsConfigurationProvider provider, Exception exception)
+        public SecretExceptionContext(SecretsConfigurationProvider provider, ISecret secret, Exception exception)
         {
             Provider = provider;
+            Secret = secret;
             Exception = exception;
         }
 
         /// <summary>
-        /// The <see cref="SecretsConfigurationProvider"/> that caused the exception.
+        /// The <see cref="SecretsConfigurationProvider"/> that invoked the <see cref="ISecret.GetValue"/>
+        /// method that caused the exception.
         /// </summary>
         public SecretsConfigurationProvider Provider { get; }
+
+        /// <summary>
+        /// The <see cref="ISecret"/> that caused the exception.
+        /// </summary>
+        public ISecret Secret { get; }
 
         /// <summary>
         /// The exception that occurred in <see cref="ISecret.GetValue"/>.

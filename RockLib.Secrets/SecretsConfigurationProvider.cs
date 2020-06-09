@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 
@@ -12,7 +13,6 @@ namespace RockLib.Secrets
     public class SecretsConfigurationProvider : ConfigurationProvider
     {
         private readonly Timer _timer;
-        private readonly IReadOnlyList<ISecret> _secrets;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SecretsConfigurationProvider"/> class.
@@ -20,18 +20,18 @@ namespace RockLib.Secrets
         /// <param name="source">The source settings.</param>
         public SecretsConfigurationProvider(SecretsConfigurationSource source)
         {
-            if (source is null)
-                throw new ArgumentNullException(nameof(source));
-            if (source.Secrets.Any(s => s is null))
-                throw new ArgumentException("Secrets cannot contain any null items.", nameof(source));
-            if (source.Secrets.Any(s => s.Key is null))
-                throw new ArgumentException("Secrets cannot contain any items with a null Key.", nameof(source));
-            if (source.Secrets.Select(s => s.Key).Distinct(StringComparer.OrdinalIgnoreCase).Count() != source.Secrets.Count)
-                throw new ArgumentException("Secrets cannot contain any items with duplicate Keys.", nameof(source));
-
-            Source = source;
+            Source = source ?? throw new ArgumentNullException(nameof(source));
+            Secrets = new ReadOnlyCollection<ISecret>(source.Secrets.ToArray());
             _timer = new Timer(_ => Load());
-            _secrets = source.Secrets.ToArray();
+
+            if (!Secrets.Any())
+                throw new ArgumentException("Source must contain at least one secret.", nameof(source));
+            if (Secrets.Any(s => s is null))
+                throw new ArgumentException("Source cannot contain any null secrets.", nameof(source));
+            if (Secrets.Any(s => s.ConfigurationKey is null))
+                throw new ArgumentException("Source cannot contain any secrets with a null Key.", nameof(source));
+            if (Secrets.Select(s => s.ConfigurationKey).Distinct(StringComparer.OrdinalIgnoreCase).Count() != Secrets.Count)
+                throw new ArgumentException("Source cannot contain any secrets with duplicate Keys.", nameof(source));
         }
 
         /// <summary>
@@ -40,40 +40,45 @@ namespace RockLib.Secrets
         public SecretsConfigurationSource Source { get; }
 
         /// <summary>
-        /// Loads data from the secrets provider.
+        /// The secrets that define this provider.
+        /// </summary>
+        public IReadOnlyList<ISecret> Secrets { get; }
+
+        /// <summary>
+        /// Loads data from <see cref="Secrets"/>.
         /// </summary>
         public override void Load()
         {
             try
             {
-                var secretValues = _secrets.Select(secret =>
+                var secrets = Secrets.Select(secret =>
                 {
                     try
                     {
-                        return new { secret.Key, Value = secret.GetValue() };
+                        return new { secret.ConfigurationKey, Value = secret.GetValue() };
                     }
                     catch (Exception ex)
                     {
-                        Source.OnSecretException?.Invoke(new SecretExceptionContext(this, ex));
-                        return null;
+                        Source.OnSecretException?.Invoke(new SecretExceptionContext(this, secret, ex));
+                        return new { secret.ConfigurationKey, Value = (string)null };
                     }
-                }).Where(s => s != null);
+                });
 
                 var secretChanged = false;
 
                 if (Data.Count == 0)
                 {
-                    foreach (var secret in secretValues)
-                        Data.Add(secret.Key, secret.Value);
+                    foreach (var secret in secrets)
+                        Data.Add(secret.ConfigurationKey, secret.Value);
                 }
                 else
                 {
-                    foreach (var secret in secretValues)
+                    foreach (var secret in secrets)
                     {
-                        if (Data[secret.Key] != secret.Value)
+                        if (secret.Value != null && Data[secret.ConfigurationKey] != secret.Value)
                         {
                             secretChanged = true;
-                            Data[secret.Key] = secret.Value;
+                            Data[secret.ConfigurationKey] = secret.Value;
                         }
                     }
                 }

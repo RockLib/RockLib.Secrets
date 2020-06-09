@@ -17,8 +17,12 @@ namespace RockLib.Secrets
         public const int DefaultReloadMilliseconds = 5 * 60 * 1000;
 
         private int _reloadMilliseconds = DefaultReloadMilliseconds;
+        private bool _alreadyBuilt;
 
-        public List<ISecret> Secrets { get; } = new List<ISecret>();
+        /// <summary>
+        /// Gets the list of <see cref="ISecret"/> 
+        /// </summary>
+        public IList<ISecret> Secrets { get; } = new List<ISecret>();
 
         /// <summary>
         /// Will be called if an uncaught exception occurs when calling <see cref="ISecret.GetValue"/>
@@ -56,22 +60,16 @@ namespace RockLib.Secrets
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
 
-            EnsureDefaults(builder);
-            return new SecretsConfigurationProvider(this);
-        }
+            if (!_alreadyBuilt)
+            {
+                _alreadyBuilt = true;
+                foreach (var secretFromConfiguration in CreateSecretsFromConfiguration(builder))
+                    Secrets.Add(secretFromConfiguration);
+            }
 
-        private void EnsureDefaults(IConfigurationBuilder builder)
-        {
             OnSecretException = OnSecretException ?? builder.GetSecretExceptionHandler();
 
-            if (Secrets.Count == 0) // Or maybe always add secrets from configuration?
-            {
-                // Maybe try to detect duplicate keys here?
-                Secrets.AddRange(CreateSecretsFromConfiguration(builder));
-
-                if (Secrets.Count == 0)
-                    throw new InvalidOperationException("No secrets are defined.");
-            }
+            return new SecretsConfigurationProvider(this);
         }
 
         private IEnumerable<ISecret> CreateSecretsFromConfiguration(IConfigurationBuilder builder)
