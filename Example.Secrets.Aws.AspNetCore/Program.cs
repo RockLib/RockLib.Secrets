@@ -1,17 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Amazon;
-using Amazon.Runtime;
-using Amazon.Runtime.CredentialManagement;
-using Example.Secrets.Aws.AspNetCore.Controllers;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using RockLib.Secrets;
-using RockLib.Secrets.Aws;
 
 namespace Example.Secrets.Aws.AspNetCore
 {
