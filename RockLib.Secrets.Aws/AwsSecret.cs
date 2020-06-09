@@ -21,7 +21,10 @@ namespace RockLib.Secrets.Aws
         /// <param name="configurationKey">The configuration key for the secret.</param>
         /// <param name="secretId">The Amazon Resource Name (ARN) or the friendly name of the secret.</param>
         /// <param name="secretKey">The key of the secret in AWS.</param>
-        /// <param name="secretsManager">The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.</param>
+        /// <param name="secretsManager">
+        /// The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS. If <see langword="null"/>,
+        /// then <see cref="AwsSecret.DefaultSecretsManager"/> is used instead.
+        /// </param>
         public AwsSecret(string configurationKey, string secretId, string secretKey = null,
             [DefaultType(typeof(AmazonSecretsManagerClient))]IAmazonSecretsManager secretsManager = null)
         {

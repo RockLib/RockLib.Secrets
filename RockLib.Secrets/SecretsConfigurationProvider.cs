@@ -25,13 +25,13 @@ namespace RockLib.Secrets
             _timer = new Timer(_ => Load());
 
             if (!Secrets.Any())
-                throw new ArgumentException("Source must contain at least one secret.", nameof(source));
+                throw new ArgumentException("The SecretsConfigurationSource must contain at least one secret.", nameof(source));
             if (Secrets.Any(s => s is null))
-                throw new ArgumentException("Source cannot contain any null secrets.", nameof(source));
+                throw new ArgumentException("The SecretsConfigurationSource cannot contain any null secrets.", nameof(source));
             if (Secrets.Any(s => s.ConfigurationKey is null))
-                throw new ArgumentException("Source cannot contain any secrets with a null Key.", nameof(source));
+                throw new ArgumentException("The SecretsConfigurationSource cannot contain any secrets with a null Key.", nameof(source));
             if (Secrets.Select(s => s.ConfigurationKey).Distinct(StringComparer.OrdinalIgnoreCase).Count() != Secrets.Count)
-                throw new ArgumentException("Source cannot contain any secrets with duplicate Keys.", nameof(source));
+                throw new ArgumentException("The SecretsConfigurationSource cannot contain any secrets with duplicate Keys.", nameof(source));
         }
 
         /// <summary>
