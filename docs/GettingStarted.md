@@ -51,21 +51,21 @@ Add a new JSON file to the project named 'appsettings.json'. Set its 'Copy to Ou
 
   "RockLib.Secrets": [
     {
-      "Type": "Example.Secrets.Custom.ReversedSecret, Example.Secrets.Custom",
+      "Type": "SecretsTutorial.ReversedSecret, SecretsTutorial",
       "Value": {
         "ConfigurationKey": "FirstSecretKey",
         "Secret": "terces tsrif eht si sihT"
       }
     },
     {
-      "Type": "Example.Secrets.Custom.ReversedSecret, Example.Secrets.Custom",
+      "Type": "SecretsTutorial.ReversedSecret, SecretsTutorial",
       "Value": {
         "ConfigurationKey": "SecondSecretKey",
         "Secret": "terces dnoces eht si sihT"
       }
     },
     {
-      "Type": "Example.Secrets.Custom.ReversedSecret, Example.Secrets.Custom",
+      "Type": "SecretsTutorial.ReversedSecret, SecretsTutorial",
       "Value": {
         "ConfigurationKey": "ThirdSecretKey",
         "Secret": "terces driht eht si sihT"
@@ -85,6 +85,7 @@ Edit the `Program.cs` file as follows:
 using Microsoft.Extensions.Configuration;
 using RockLib.Secrets;
 using System;
+using System.Diagnostics;
 
 namespace SecretsTutorial
 {
@@ -103,7 +104,7 @@ namespace SecretsTutorial
             Console.WriteLine("Second Secret: " + config["SecondSecretKey"]);
             Console.WriteLine("Third Secret: " + config["ThirdSecretKey"]);
 
-            Console.ReadKey();
+            Debugger.Break();
         }
     }
 }
