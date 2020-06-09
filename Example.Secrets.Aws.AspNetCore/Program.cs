@@ -1,16 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Amazon;
-using Amazon.Runtime;
-using Amazon.Runtime.CredentialManagement;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using RockLib.Secrets;
-using RockLib.Secrets.Aws;
 
 namespace Example.Secrets.Aws.AspNetCore
 {
@@ -28,14 +19,14 @@ namespace Example.Secrets.Aws.AspNetCore
             //credentialsFile.RegisterProfile(profile);
 
             CreateHostBuilder(args).Build().Run();
+
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration(builder =>
                     builder.SetSecretExceptionHandler(context => Console.WriteLine(context.Exception))
-                        .AddRockLibSecrets()
-                            /*.AddSecret(new AwsSecret("WeatherUndergroundApiKey", "WeatherUnderground", "ApiKey"))*/)
+                        .AddRockLibSecrets())
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
