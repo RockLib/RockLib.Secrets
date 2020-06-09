@@ -26,7 +26,7 @@ namespace Example.Secrets.Aws.AspNetCore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHttpClient("WeatherUnderground", client => client.DefaultRequestHeaders.Add("ApiKey", Configuration["WeatherUndergroundApiKey"]));
+            services.AddHttpClient("OpenUV", client => client.DefaultRequestHeaders.Add("x-access-token", Configuration["OpenUVApiKey"]));
             services.AddControllers();
         }
 
