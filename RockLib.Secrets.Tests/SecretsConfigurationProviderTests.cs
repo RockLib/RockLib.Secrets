@@ -42,7 +42,7 @@ namespace RockLib.Secrets.Tests
 
             Action act = () => new SecretsConfigurationProvider(source);
 
-            act.Should().ThrowExactly<ArgumentException>().WithMessage("Source must contain at least one secret.*source*");
+            act.Should().ThrowExactly<ArgumentException>().WithMessage("The SecretsConfigurationSource must contain at least one secret.*source*");
         }
 
         [Fact(DisplayName = "Constructor throws when source.Secrets contains null items")]
@@ -58,7 +58,7 @@ namespace RockLib.Secrets.Tests
 
             Action act = () => new SecretsConfigurationProvider(source);
 
-            act.Should().ThrowExactly<ArgumentException>().WithMessage("Source cannot contain any null secrets.*source*");
+            act.Should().ThrowExactly<ArgumentException>().WithMessage("The SecretsConfigurationSource cannot contain any null secrets.*source*");
         }
 
         [Fact(DisplayName = "Constructor throws when source.Secrets contains items with null Key")]
@@ -74,7 +74,7 @@ namespace RockLib.Secrets.Tests
 
             Action act = () => new SecretsConfigurationProvider(source);
 
-            act.Should().ThrowExactly<ArgumentException>().WithMessage("Source cannot contain any secrets with a null Key.*source*");
+            act.Should().ThrowExactly<ArgumentException>().WithMessage("The SecretsConfigurationSource cannot contain any secrets with a null Key.*source*");
         }
 
         [Fact(DisplayName = "Constructor throws when source.SecretsProvider.Secrets contains items with duplicate keys")]
@@ -90,7 +90,7 @@ namespace RockLib.Secrets.Tests
 
             Action act = () => new SecretsConfigurationProvider(source);
 
-            act.Should().ThrowExactly<ArgumentException>().WithMessage("Source cannot contain any secrets with duplicate Keys.*source*");
+            act.Should().ThrowExactly<ArgumentException>().WithMessage("The SecretsConfigurationSource cannot contain any secrets with duplicate Keys.*source*");
         }
 
         [Fact(DisplayName = "Load method adds each secret's key and value to the provider's Data")]
