@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Newtonsoft.Json.Linq;
+using RockLib.Configuration.ObjectFactory;
 
 namespace RockLib.Secrets.Aws
 {
@@ -11,83 +12,89 @@ namespace RockLib.Secrets.Aws
     /// </summary>
     public class AwsSecret : ISecret
     {
-        private readonly string _exceptionMessage;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AwsSecret"/> class for plaintext secrets.
-        /// </summary>
-        /// <param name="key">The key used to retrieve the secret from the provider.</param>
-        /// <param name="awsSecretName">The name of the secret in AWS.</param>
-        /// <param name="secretsClient">The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.</param>
-        public AwsSecret(string key, string awsSecretName, IAmazonSecretsManager secretsClient)
-            : this(key, awsSecretName, null, secretsClient)
-        {
-            _exceptionMessage = $"No secret was found with the AwsSecretName '{AwsSecretName}' for the key '{Key}'";
-        }
+        private static IAmazonSecretsManager _defaultSecretsManager;
+        private readonly string _exceptionMessageFormat;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AwsSecret"/> class for key/value secrets.
         /// </summary>
-        /// <param name="key">The key used to retrieve the secret from the provider.</param>
-        /// <param name="awsSecretName">The name of the secret in AWS.</param>
-        /// <param name="awsSecretKey">The key of the secret in AWS.</param>
-        /// <param name="secretsClient">The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.</param>
-        public AwsSecret(string key, string awsSecretName, string awsSecretKey, IAmazonSecretsManager secretsClient)
+        /// <param name="configurationKey">The configuration key for the secret.</param>
+        /// <param name="secretId">The Amazon Resource Name (ARN) or the friendly name of the secret.</param>
+        /// <param name="secretKey">The key of the secret in AWS.</param>
+        /// <param name="secretsManager">
+        /// The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS. If <see langword="null"/>,
+        /// then <see cref="AwsSecret.DefaultSecretsManager"/> is used instead.
+        /// </param>
+        public AwsSecret(string configurationKey, string secretId, string secretKey = null,
+            [DefaultType(typeof(AmazonSecretsManagerClient))]IAmazonSecretsManager secretsManager = null)
         {
-            Key = key;
-            AwsSecretName = awsSecretName;
-            AwsSecretKey = awsSecretKey;
-            SecretsClient = secretsClient;
+            ConfigurationKey = configurationKey ?? throw new ArgumentNullException(nameof(configurationKey));
+            SecretId = secretId ?? throw new ArgumentNullException(nameof(secretId));
+            SecretKey = secretKey;
+            SecretsManager = secretsManager ?? DefaultSecretsManager;
 
-            _exceptionMessage = $"No secret was found with the AwsSecretName '{AwsSecretName}' and AwsSecretKey '{AwsSecretKey}' for the key '{Key}'";
+            if (secretKey is null)
+                _exceptionMessageFormat = $"No secret was found with the AwsSecretName '{SecretId}' for the key '{ConfigurationKey}': {{0}}";
+            else
+                _exceptionMessageFormat = $"No secret was found with the AwsSecretName '{SecretId}' and AwsSecretKey '{SecretKey}' for the key '{ConfigurationKey}': {{0}}";
         }
 
         /// <summary>
-        /// Gets the identifier of the secret.
+        /// Gets or sets the instance of <see cref="IAmazonSecretsManager"/> to be used by the
+        /// <see cref="AwsSecret"/> class when a secrets manager is not provided to its constructor.
         /// </summary>
-        public string Key { get; }
+        public static IAmazonSecretsManager DefaultSecretsManager
+        {
+            get => _defaultSecretsManager ?? (_defaultSecretsManager = new AmazonSecretsManagerClient());
+            set => _defaultSecretsManager = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
         /// <summary>
-        /// Gets the name of the secret in AWS.
+        /// Gets the configuration key for the secret.
         /// </summary>
-        public string AwsSecretName { get; }
+        public string ConfigurationKey { get; }
 
         /// <summary>
-        /// Gets the key of the secret in AWS.
+        /// Gets the Amazon Resource Name (ARN) or the friendly name of the secret.
         /// </summary>
-        public string AwsSecretKey { get; }
+        public string SecretId { get; }
+
+        /// <summary>
+        /// Gets the "Secret Key" of the secret.
+        /// </summary>
+        public string SecretKey { get; }
 
         /// <summary>
         /// Gets the <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.
         /// </summary>
-        public IAmazonSecretsManager SecretsClient { get; }
+        public IAmazonSecretsManager SecretsManager { get; }
 
         /// <summary>
-        /// Returns the value of the secret.
+        /// Gets the value of the secret.
         /// </summary>
-        /// <returns>The string value of the secret.</returns>
+        /// <returns>The secret value.</returns>
         public string GetValue()
         {
             var request = new GetSecretValueRequest
             {
-                SecretId = AwsSecretName
+                SecretId = SecretId
             };
 
             // NOTE: Returns an async calls value safely.
-            var response = Sync.OverAsync(() => SecretsClient.GetSecretValueAsync(request));
+            var response = Sync.OverAsync(() => SecretsManager.GetSecretValueAsync(request));
 
             if (response == null)
-                throw new KeyNotFoundException(_exceptionMessage);
+                throw new KeyNotFoundException(string.Format(_exceptionMessageFormat, "Response was null."));
 
             if (response.SecretString != null)
             {
-                if (AwsSecretKey != null)
+                if (SecretKey != null)
                 {
-                    var secret = JObject.Parse(response.SecretString)[AwsSecretKey];
+                    var secret = JObject.Parse(response.SecretString)[SecretKey];
                     if (secret != null)
                         return secret.ToString();
 
-                    throw new KeyNotFoundException(_exceptionMessage);
+                    throw new KeyNotFoundException(string.Format(_exceptionMessageFormat, $"Response did not contain item with the name '{SecretKey}'."));
                 }
 
                 return response.SecretString;
@@ -96,7 +103,7 @@ namespace RockLib.Secrets.Aws
             if (response.SecretBinary != null)
                 return Convert.ToBase64String(response.SecretBinary.ToArray());
 
-            throw new KeyNotFoundException(_exceptionMessage);
+            throw new KeyNotFoundException(string.Format(_exceptionMessageFormat, "Response did not contain a value for SecretString or SecretBinary."));
         }
     }
 }
