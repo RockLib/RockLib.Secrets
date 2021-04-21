@@ -1,19 +1,17 @@
-version: 'RockLib.Secrets.Aws.{build}.0.0-ci'
+version: 'RockLib.Secrets.{build}.0.0-ci'
 image: Visual Studio 2019
 configuration: Release
 only_commits:
   files:
-  - RockLib.Secrets.Aws/
-  - Tests/RockLib.Secrets.Aws.Tests/
-  - RockLib.Secrets.Aws.sln
-  - RockLib.Secrets.Aws.appveyor.yml
+  - RockLib.Secrets/
+  - Tests/RockLib.Secrets.Tests/
 before_build:
 - ps: |
     # The path to the solution to restore.
-    $sln_path = "RockLib.Secrets.Aws.sln"
+    $sln_path = "RockLib.Secrets\RockLib.Secrets.sln"
     
     # The path to the main csproj file. It will be patched during the build.
-    $csproj_path = "RockLib.Secrets.Aws\RockLib.Secrets.Aws.csproj"
+    $csproj_path = "RockLib.Secrets\RockLib.Secrets.csproj"
     
     # The version of the build artifact's nuget package when created by CI builds.
     $ci_package_version = "$Env:appveyor_build_number.0.0-ci"
@@ -95,7 +93,7 @@ before_build:
 
     nuget restore $sln_path
 build:
-  project: RockLib.Secrets.Aws.sln
+  project: RockLib.Secrets/RockLib.Secrets.sln
   verbosity: minimal
 artifacts:
 - path: '**/$(csproj_build_version).nupkg'
