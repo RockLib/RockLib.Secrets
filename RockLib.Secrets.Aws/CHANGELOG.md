@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Changed
 
 - Changes "Quicken Loans" to "Rocket Mortgage".
+- Updates RockLib.Secrets to latest version, [2.0.6](https://github.com/RockLib/RockLib.Secrets/blob/main/RockLib.Secrets/CHANGELOG.md#206---2021-08-12).
+- Updates AWSSDK.SecretsManager to latest version, [3.7.1.4](https://github.com/aws/aws-sdk-net/blob/master/SDK.CHANGELOG.md#37950-2021-08-12-1814-utc).
+- Updates Newtonsoft.Json to latest version, [13.0.1](https://github.com/JamesNK/Newtonsoft.Json/releases/tag/13.0.1).
 
 ## 1.0.7 - 2021-05-06
 
