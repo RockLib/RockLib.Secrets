@@ -28,7 +28,7 @@ namespace RockLib.Secrets
         /// Will be called if an uncaught exception occurs when calling <see cref="ISecret.GetValue"/>
         /// from the <see cref="SecretsConfigurationProvider.Load"/> method.
         /// </summary>
-        public Action<SecretExceptionContext> OnSecretException { get; set; }
+        public Action<SecretExceptionContext>? OnSecretException { get; set; }
 
         /// <summary>
         /// The number of milliseconds to wait before reloading secrets. Specify <see cref="Timeout.Infinite"/>
@@ -40,7 +40,9 @@ namespace RockLib.Secrets
             set
             {
                 if (value < Timeout.Infinite)
+                {
                     throw new ArgumentOutOfRangeException(nameof(value), "Must be either non-negative or -1.");
+                }
                 _reloadMilliseconds = value;
             }
         }
@@ -57,14 +59,18 @@ namespace RockLib.Secrets
         /// <returns>An instance of <see cref="SecretsConfigurationProvider"/>.</returns>
         public IConfigurationProvider Build(IConfigurationBuilder builder)
         {
-            if (builder == null)
+            if (builder is null)
+            {
                 throw new ArgumentNullException(nameof(builder));
+            }
 
             if (!_alreadyBuilt)
             {
                 _alreadyBuilt = true;
                 foreach (var secretFromConfiguration in CreateSecretsFromConfiguration(builder))
+                {
                     Secrets.Add(secretFromConfiguration);
+                }
             }
 
             OnSecretException = OnSecretException ?? builder.GetSecretExceptionHandler();
@@ -77,10 +83,16 @@ namespace RockLib.Secrets
             // Make a copy of the builder, excluding this SecretsConfigurationSource.
             // Otherwise there will be infinite recursion when building the builder.
             var builderCopy = new ConfigurationBuilder();
+
             foreach (var source in builder.Sources.Where(s => !ReferenceEquals(this, s)))
+            {
                 builderCopy.Add(source);
+            }
+
             foreach (var property in builder.Properties)
+            {
                 builderCopy.Properties.Add(property.Key, property.Value);
+            }
 
             var configuration = builderCopy.Build();
             

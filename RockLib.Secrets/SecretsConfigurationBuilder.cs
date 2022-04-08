@@ -10,7 +10,10 @@ namespace RockLib.Secrets
         /// <summary>
         /// Initializes a new instance of the <see cref="SecretsConfigurationBuilder"/> class.
         /// </summary>
-        /// <param name="source"></param>
+        /// <param name="source">The secrets configuration source.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="source"/> is <c>null</c>.
+        /// </exception>
         public SecretsConfigurationBuilder(SecretsConfigurationSource source)
         {
             Source = source ?? throw new ArgumentNullException(nameof(source));
@@ -26,6 +29,9 @@ namespace RockLib.Secrets
         /// </summary>
         /// <param name="secret">The <see cref="ISecret"/>.</param>
         /// <returns>The <see cref="ISecretsConfigurationBuilder"/>.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="secret"/> is <c>null</c>.
+        /// </exception>
         public ISecretsConfigurationBuilder AddSecret(ISecret secret)
         {
             Source.Secrets.Add(secret ?? throw new ArgumentNullException(nameof(secret)));

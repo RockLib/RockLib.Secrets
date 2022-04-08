@@ -16,11 +16,14 @@ namespace RockLib.Secrets
         /// </param>
         /// <param name="secret">The <see cref="ISecret"/> that caused the exception.</param>
         /// <param name="exception">The exception that occurred in <see cref="ISecret.GetValue"/>.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="provider"/> or <paramref name="secret"/> or <paramref name="exception"/> is <c>null</c>.
+        /// </exception>
         public SecretExceptionContext(SecretsConfigurationProvider provider, ISecret secret, Exception exception)
         {
-            Provider = provider;
-            Secret = secret;
-            Exception = exception;
+            Provider = provider ?? throw new ArgumentNullException(nameof(provider));
+            Secret = secret ?? throw new ArgumentNullException(nameof(secret));
+            Exception = exception ?? throw new ArgumentNullException(nameof(exception));
         }
 
         /// <summary>

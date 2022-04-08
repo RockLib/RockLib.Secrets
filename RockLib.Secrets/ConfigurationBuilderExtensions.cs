@@ -37,11 +37,16 @@ namespace RockLib.Secrets
         /// <returns>
         /// An <see cref="ISecretsConfigurationBuilder"/> used to define the source's secrets.
         /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="builder"/> is <c>null</c>.
+        /// </exception>
         public static ISecretsConfigurationBuilder AddRockLibSecrets(this IConfigurationBuilder builder,
-            Action<SecretsConfigurationSource> configureSource)
+            Action<SecretsConfigurationSource>? configureSource)
         {
-            if (builder == null)
+            if (builder is null)
+            {
                 throw new ArgumentNullException(nameof(builder));
+            }
 
             var source = new SecretsConfigurationSource();
             configureSource?.Invoke(source);
@@ -56,12 +61,23 @@ namespace RockLib.Secrets
         /// <param name="builder">The <see cref="IConfigurationBuilder"/> to add to.</param>
         /// <param name="onSecretException">The action to be invoked for SecretsConfigurationProvider.</param>
         /// <returns>The <see cref="IConfigurationBuilder"/>.</returns>
-        public static IConfigurationBuilder SetSecretExceptionHandler(this IConfigurationBuilder builder, Action<SecretExceptionContext> onSecretException)
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="builder"/> or <paramref name="onSecretException"/> is <c>null</c>.
+        /// </exception>
+        public static IConfigurationBuilder SetSecretExceptionHandler(this IConfigurationBuilder builder, 
+            Action<SecretExceptionContext> onSecretException)
         {
-            if (builder == null)
+            if (builder is null)
+            {
                 throw new ArgumentNullException(nameof(builder));
+            }
 
-            builder.Properties[SecretExceptionHandlerKey] = onSecretException ?? throw new ArgumentNullException(nameof(onSecretException));
+            if(onSecretException is null)
+            {
+                throw new ArgumentNullException(nameof(onSecretException));
+            }
+
+            builder.Properties[SecretExceptionHandlerKey] = onSecretException;
             return builder;
         }
 
@@ -72,15 +88,22 @@ namespace RockLib.Secrets
         /// <param name="builder">The <see cref="IConfigurationBuilder"/>.</param>
         /// <returns>
         /// The default action to be invoked for SecretsConfigurationProvider when an error occurs while
-        /// getting the value of a secret.
+        /// getting the value of a secret, or <c>null</c> otherwise.
         /// </returns>
-        public static Action<SecretExceptionContext> GetSecretExceptionHandler(this IConfigurationBuilder builder)
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="builder"/> is <c>null</c>.
+        /// </exception>
+        public static Action<SecretExceptionContext>? GetSecretExceptionHandler(this IConfigurationBuilder builder)
         {
-            if (builder == null)
+            if (builder is null)
+            {
                 throw new ArgumentNullException(nameof(builder));
+            }
 
             if (builder.Properties.TryGetValue(SecretExceptionHandlerKey, out var value) && value is Action<SecretExceptionContext> exceptionHandler)
+            {
                 return exceptionHandler;
+            }
 
             return null;
         }
