@@ -36,7 +36,7 @@ namespace RockLib.Secrets.Tests
             var builder = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string>
                 {
-                    ["RockLib.Secrets:Type"] = typeof(CustomSecret).AssemblyQualifiedName
+                    ["RockLib.Secrets:Type"] = typeof(CustomSecret).AssemblyQualifiedName!
                 });
 
             var provider = (SecretsConfigurationProvider)source.Build(builder);
@@ -84,7 +84,7 @@ namespace RockLib.Secrets.Tests
             var builder = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string>
                 {
-                    ["RockLib.Secrets:Type"] = typeof(CustomSecret).AssemblyQualifiedName
+                    ["RockLib.Secrets:Type"] = typeof(CustomSecret).AssemblyQualifiedName!
                 });
 
             // Before building, source only contains the single secret that was added directly to it.
@@ -105,7 +105,9 @@ namespace RockLib.Secrets.Tests
             source.Secrets[1].Should().BeOfType<CustomSecret>();
         }
 
+#pragma warning disable CA1812
         private class CustomSecret : ISecret
+#pragma warning restore CA1812
         {
             public string ConfigurationKey => "CustomSecret.Key";
 

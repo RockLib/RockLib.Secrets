@@ -5,10 +5,10 @@ using Xunit;
 
 namespace RockLib.Secrets.Tests
 {
-    public class ConfigurationBuilderExtensionsTests
+    public static class ConfigurationBuilderExtensionsTests
     {
         [Fact(DisplayName = "AddRockLibSecrets method 1 adds a secrets source and returns a secrets builder")]
-        public void AddRockLibSecretsMethod1HappyPath()
+        public static void AddRockLibSecretsMethod1HappyPath()
         {
             var builder = new ConfigurationBuilder();
 
@@ -24,17 +24,17 @@ namespace RockLib.Secrets.Tests
         }
 
         [Fact(DisplayName = "AddRockLibSecrets method 1 throws if builder is null")]
-        public void AddRockLibSecretsMethod1SadPath()
+        public static void AddRockLibSecretsMethod1SadPath()
         {
-            IConfigurationBuilder builder = null;
+            IConfigurationBuilder builder = null!;
 
-            Action act = () => builder.AddRockLibSecrets();
+            var act = () => builder.AddRockLibSecrets();
 
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*builder*");
         }
 
         [Fact(DisplayName = "AddRockLibSecrets method 2 adds a secrets source, configures it, and returns a secrets builder")]
-        public void AddRockLibSecretsMethod2HappyPath()
+        public static void AddRockLibSecretsMethod2HappyPath()
         {
             var builder = new ConfigurationBuilder();
 
@@ -55,9 +55,9 @@ namespace RockLib.Secrets.Tests
         }
 
         [Fact(DisplayName = "AddRockLibSecrets method 2 throws if builder is null")]
-        public void AddRockLibSecretsMethod2SadPath()
+        public static void AddRockLibSecretsMethod2SadPath()
         {
-            IConfigurationBuilder builder = null;
+            IConfigurationBuilder builder = null!;
 
             Action act = () => builder.AddRockLibSecrets(source => { });
 
@@ -65,7 +65,7 @@ namespace RockLib.Secrets.Tests
         }
 
         [Fact(DisplayName = "SetSecretExceptionHandler method sets builder.Properties with 'RockLib.SecretsProvider' and the specified secrets provider")]
-        public void SetSecretExceptionHandlerMethodHappyPath()
+        public static void SetSecretExceptionHandlerMethodHappyPath()
         {
             Action<SecretExceptionContext> onSecretException = context => { };
 
@@ -77,9 +77,9 @@ namespace RockLib.Secrets.Tests
         }
 
         [Fact(DisplayName = "SetSecretExceptionHandler method throws if builder is null")]
-        public void SetSecretExceptionHandlerMethodSadPath1()
+        public static void SetSecretExceptionHandlerMethodSadPath1()
         {
-            IConfigurationBuilder builder = null;
+            IConfigurationBuilder builder = null!;
             Action<SecretExceptionContext> onSecretException = context => { };
 
             Action act = () => builder.SetSecretExceptionHandler(onSecretException);
@@ -88,17 +88,17 @@ namespace RockLib.Secrets.Tests
         }
 
         [Fact(DisplayName = "SetSecretExceptionHandler method throws if secretsProvider is null")]
-        public void SetSecretExceptionHandlerMethodSadPath2()
+        public static void SetSecretExceptionHandlerMethodSadPath2()
         {
             var builder = new ConfigurationBuilder();
 
-            Action act = () => builder.SetSecretExceptionHandler(null);
+            Action act = () => builder.SetSecretExceptionHandler(null!);
 
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*onSecretException*");
         }
 
         [Fact(DisplayName = "GetSecretExceptionHandler method returns the secrets provider from builder.Properties[\"RockLib.SecretsProvider\"]")]
-        public void GetSecretExceptionHandlerMethodHappyPath1()
+        public static void GetSecretExceptionHandlerMethodHappyPath1()
         {
             var builder = new ConfigurationBuilder();
             Action<SecretExceptionContext> onSecretException = context => { };
@@ -111,7 +111,7 @@ namespace RockLib.Secrets.Tests
         }
 
         [Fact(DisplayName = "GetSecretExceptionHandler method returns null if builder.Properties does not have a 'RockLib.SecretExceptionHandler' item")]
-        public void GetSecretExceptionHandlerMethodHappyPath2()
+        public static void GetSecretExceptionHandlerMethodHappyPath2()
         {
             var builder = new ConfigurationBuilder();
 
@@ -121,9 +121,9 @@ namespace RockLib.Secrets.Tests
         }
 
         [Fact(DisplayName = "GetSecretExceptionHandler method throws if builder is null")]
-        public void GetSecretExceptionHandlerMethodSadPath()
+        public static void GetSecretExceptionHandlerMethodSadPath()
         {
-            IConfigurationBuilder builder = null;
+            IConfigurationBuilder builder = null!;
 
             Action act = () => builder.GetSecretExceptionHandler();
 

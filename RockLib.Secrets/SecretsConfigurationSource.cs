@@ -73,7 +73,7 @@ namespace RockLib.Secrets
                 }
             }
 
-            OnSecretException = OnSecretException ?? builder.GetSecretExceptionHandler();
+            OnSecretException ??= builder.GetSecretExceptionHandler();
 
             return new SecretsConfigurationProvider(this);
         }
@@ -97,7 +97,7 @@ namespace RockLib.Secrets
             var configuration = builderCopy.Build();
             
             return configuration.GetCompositeSection("RockLib_Secrets", "RockLib.Secrets")
-                .Create<List<ISecret>>();
+                .Create<List<ISecret>>()!;
         }
     }
 }
