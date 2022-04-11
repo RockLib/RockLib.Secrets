@@ -9,8 +9,8 @@ namespace RockLib.Secrets.Tests
 {
     public class SecretsConfigurationSourceTests
     {
-        [Fact(DisplayName = "DisableReload method sets ReloadMilliseconds to Timeout.Infinite")]
-        public void DisableReloadMethodHappyPath()
+        [Fact]
+        public void DisableReloadMethod()
         {
             var source = new SecretsConfigurationSource
             {
@@ -22,8 +22,8 @@ namespace RockLib.Secrets.Tests
             source.ReloadMilliseconds.Should().Be(Timeout.Infinite);
         }
 
-        [Fact(DisplayName = "Build method returns SecretsConfigurationProvider")]
-        public void BuildMethodHappyPath1()
+        [Fact]
+        public void BuildMethod()
         {
             var secret1 = MockSecret.Get("key1", "value1").Object;
             var secret2 = MockSecret.Get("key2", "value2").Object;
@@ -51,8 +51,8 @@ namespace RockLib.Secrets.Tests
             provider.Secrets[2].Should().BeOfType<CustomSecret>();
         }
 
-        [Fact(DisplayName = "Build method sets OnSecretException property from builder when OnSecretException is null")]
-        public void BuildMethodHappyPath2()
+        [Fact]
+        public void BuildMethodWhenOnSecretExceptionIsNull()
         {
             Action<SecretExceptionContext> onSecretException = context => { };
 
@@ -71,8 +71,8 @@ namespace RockLib.Secrets.Tests
             source.OnSecretException.Should().BeSameAs(onSecretException);
         }
 
-        [Fact(DisplayName = "Build method only add secrets from configuration on the first call")]
-        public void BuildMethodHappyPath3()
+        [Fact]
+        public void BuildMethodAddingSecretsOnFirstCall()
         {
             var secret = MockSecret.Get("key", "value").Object;
 

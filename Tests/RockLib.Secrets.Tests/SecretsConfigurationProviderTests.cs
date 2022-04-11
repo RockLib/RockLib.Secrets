@@ -8,8 +8,8 @@ namespace RockLib.Secrets.Tests
 {
     public static class SecretsConfigurationProviderTests
     {
-        [Fact(DisplayName = "Constructor sets properties")]
-        public static void ConstructorHappyPath()
+        [Fact]
+        public static void Create()
         {
             var secret1 = MockSecret.Get("key1", "value1").Object;
             var secret2 = MockSecret.Get("key2", "value2").Object;
@@ -27,16 +27,16 @@ namespace RockLib.Secrets.Tests
             provider.Secrets.Should().BeEquivalentTo(source.Secrets);
         }
 
-        [Fact(DisplayName = "Constructor throws when source parameter is null")]
-        public static void ConstructorSadPath1()
+        [Fact]
+        public static void CreateWithNullSource()
         {
             var act = () => new SecretsConfigurationProvider(null!);
 
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*source*");
         }
 
-        [Fact(DisplayName = "Constructor throws when source.Secrets contains no items")]
-        public static void ConstructorSadPath2()
+        [Fact]
+        public static void CreateWithNoSecrets()
         {
             var source = new SecretsConfigurationSource();
 
@@ -45,8 +45,8 @@ namespace RockLib.Secrets.Tests
             act.Should().ThrowExactly<ArgumentException>().WithMessage("The SecretsConfigurationSource must contain at least one secret.*source*");
         }
 
-        [Fact(DisplayName = "Constructor throws when source.Secrets contains null items")]
-        public static void ConstructorSadPath3()
+        [Fact]
+        public static void CreateWithNullValueInSecrets()
         {
             var secret1 = MockSecret.Get("key1", "value1").Object;
             ISecret secret2 = null!;
@@ -61,8 +61,8 @@ namespace RockLib.Secrets.Tests
             act.Should().ThrowExactly<ArgumentException>().WithMessage("The SecretsConfigurationSource cannot contain any null secrets.*source*");
         }
 
-        [Fact(DisplayName = "Constructor throws when source.Secrets contains items with null Key")]
-        public static void ConstructorSadPath4()
+        [Fact]
+        public static void CreateWithNullKeyInSecrets()
         {
             var secret1 = MockSecret.Get("key1", "value1").Object;
             var secret2 = MockSecret.Get(null!, "value2").Object;
@@ -77,8 +77,8 @@ namespace RockLib.Secrets.Tests
             act.Should().ThrowExactly<ArgumentException>().WithMessage("The SecretsConfigurationSource cannot contain any secrets with a null Key.*source*");
         }
 
-        [Fact(DisplayName = "Constructor throws when source.SecretsProvider.Secrets contains items with duplicate keys")]
-        public static void ConstructorSadPath5()
+        [Fact]
+        public static void CreateWithDuplicateKeysInSecrets()
         {
             var secret1 = MockSecret.Get("key1", "value1").Object;
             var secret2 = MockSecret.Get("key1", "value2").Object;
@@ -93,8 +93,8 @@ namespace RockLib.Secrets.Tests
             act.Should().ThrowExactly<ArgumentException>().WithMessage("The SecretsConfigurationSource cannot contain any secrets with duplicate Keys.*source*");
         }
 
-        [Fact(DisplayName = "Load method adds each secret's key and value to the provider's Data")]
-        public static void LoadMethodHappyPath()
+        [Fact]
+        public static void LoadMethod()
         {
             var secret1 = MockSecret.Get("foo", "abc").Object;
             var secret2 = MockSecret.Get("bar", (string)null!).Object;
@@ -116,8 +116,8 @@ namespace RockLib.Secrets.Tests
             barValue.Should().BeNull();
         }
 
-        [Fact(DisplayName = "Load method invokes exception handler when ISecret.GetValue method throws")]
-        public static void LoadMethodSadPath()
+        [Fact]
+        public static void LoadMethodWhenGetValueThrowsException()
         {
             var exception = new ArgumentNullException();
 
