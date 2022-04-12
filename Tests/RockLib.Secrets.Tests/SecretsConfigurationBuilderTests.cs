@@ -4,10 +4,10 @@ using Xunit;
 
 namespace RockLib.Secrets.Tests
 {
-    public class SecretsConfigurationBuilderTests
+    public static class SecretsConfigurationBuilderTests
     {
-        [Fact(DisplayName = "Constructor sets Source property")]
-        public void ConstructorHappyPath()
+        [Fact]
+        public static void Create()
         {
             var source = new SecretsConfigurationSource();
 
@@ -16,16 +16,16 @@ namespace RockLib.Secrets.Tests
             builder.Source.Should().BeSameAs(source);
         }
 
-        [Fact(DisplayName = "Constructor throws if source is null")]
-        public void ConstructorSadPath()
+        [Fact]
+        public static void ConstructorWithNullSource()
         {
-            Action act = () => new SecretsConfigurationBuilder(null);
+            var act = () => new SecretsConfigurationBuilder(null!);
 
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*source*");
         }
 
-        [Fact(DisplayName = "AddSecret method adds secret to source")]
-        public void AddSecretMethodHappyPath()
+        [Fact]
+        public static void AddSecretMethod()
         {
             var source = new SecretsConfigurationSource();
 
@@ -39,14 +39,14 @@ namespace RockLib.Secrets.Tests
                 .Which.Should().BeSameAs(secret);
         }
 
-        [Fact(DisplayName = "AddSecret method throws if secret is null")]
-        public void AddSecretMethodSadPath()
+        [Fact]
+        public static void AddSecretMethodWithNullSecret()
         {
             var source = new SecretsConfigurationSource();
 
             var builder = new SecretsConfigurationBuilder(source);
 
-            Action act = () => builder.AddSecret(null);
+            var act = () => builder.AddSecret(null!);
 
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*secret*");
         }

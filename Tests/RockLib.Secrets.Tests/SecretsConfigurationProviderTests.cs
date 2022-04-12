@@ -6,10 +6,10 @@ using Xunit;
 
 namespace RockLib.Secrets.Tests
 {
-    public class SecretsConfigurationProviderTests
+    public static class SecretsConfigurationProviderTests
     {
-        [Fact(DisplayName = "Constructor sets properties")]
-        public void ConstructorHappyPath()
+        [Fact]
+        public static void Create()
         {
             var secret1 = MockSecret.Get("key1", "value1").Object;
             var secret2 = MockSecret.Get("key2", "value2").Object;
@@ -19,7 +19,7 @@ namespace RockLib.Secrets.Tests
                 Secrets = { secret1, secret2 }
             };
 
-            var provider = new SecretsConfigurationProvider(source);
+            using var provider = new SecretsConfigurationProvider(source);
 
             provider.Source.Should().BeSameAs(source);
 
@@ -27,58 +27,58 @@ namespace RockLib.Secrets.Tests
             provider.Secrets.Should().BeEquivalentTo(source.Secrets);
         }
 
-        [Fact(DisplayName = "Constructor throws when source parameter is null")]
-        public void ConstructorSadPath1()
+        [Fact]
+        public static void CreateWithNullSource()
         {
-            Action act = () => new SecretsConfigurationProvider(null);
+            var act = () => new SecretsConfigurationProvider(null!);
 
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*source*");
         }
 
-        [Fact(DisplayName = "Constructor throws when source.Secrets contains no items")]
-        public void ConstructorSadPath2()
+        [Fact]
+        public static void CreateWithNoSecrets()
         {
             var source = new SecretsConfigurationSource();
 
-            Action act = () => new SecretsConfigurationProvider(source);
+            var act = () => new SecretsConfigurationProvider(source);
 
             act.Should().ThrowExactly<ArgumentException>().WithMessage("The SecretsConfigurationSource must contain at least one secret.*source*");
         }
 
-        [Fact(DisplayName = "Constructor throws when source.Secrets contains null items")]
-        public void ConstructorSadPath3()
+        [Fact]
+        public static void CreateWithNullValueInSecrets()
         {
             var secret1 = MockSecret.Get("key1", "value1").Object;
-            ISecret secret2 = null;
+            ISecret secret2 = null!;
 
             var source = new SecretsConfigurationSource
             {
                 Secrets = { secret1, secret2 }
             };
 
-            Action act = () => new SecretsConfigurationProvider(source);
+            var act = () => new SecretsConfigurationProvider(source);
 
             act.Should().ThrowExactly<ArgumentException>().WithMessage("The SecretsConfigurationSource cannot contain any null secrets.*source*");
         }
 
-        [Fact(DisplayName = "Constructor throws when source.Secrets contains items with null Key")]
-        public void ConstructorSadPath4()
+        [Fact]
+        public static void CreateWithNullKeyInSecrets()
         {
             var secret1 = MockSecret.Get("key1", "value1").Object;
-            var secret2 = MockSecret.Get(null, "value2").Object;
+            var secret2 = MockSecret.Get(null!, "value2").Object;
 
             var source = new SecretsConfigurationSource
             {
                 Secrets = { secret1, secret2 }
             };
 
-            Action act = () => new SecretsConfigurationProvider(source);
+            var act = () => new SecretsConfigurationProvider(source);
 
             act.Should().ThrowExactly<ArgumentException>().WithMessage("The SecretsConfigurationSource cannot contain any secrets with a null Key.*source*");
         }
 
-        [Fact(DisplayName = "Constructor throws when source.SecretsProvider.Secrets contains items with duplicate keys")]
-        public void ConstructorSadPath5()
+        [Fact]
+        public static void CreateWithDuplicateKeysInSecrets()
         {
             var secret1 = MockSecret.Get("key1", "value1").Object;
             var secret2 = MockSecret.Get("key1", "value2").Object;
@@ -88,16 +88,16 @@ namespace RockLib.Secrets.Tests
                 Secrets = { secret1, secret2 }
             };
 
-            Action act = () => new SecretsConfigurationProvider(source);
+            var act = () => new SecretsConfigurationProvider(source);
 
             act.Should().ThrowExactly<ArgumentException>().WithMessage("The SecretsConfigurationSource cannot contain any secrets with duplicate Keys.*source*");
         }
 
-        [Fact(DisplayName = "Load method adds each secret's key and value to the provider's Data")]
-        public void LoadMethodHappyPath()
+        [Fact]
+        public static void LoadMethod()
         {
             var secret1 = MockSecret.Get("foo", "abc").Object;
-            var secret2 = MockSecret.Get("bar", (string)null).Object;
+            var secret2 = MockSecret.Get("bar", (string)null!).Object;
 
             var source = new SecretsConfigurationSource
             {
@@ -105,7 +105,7 @@ namespace RockLib.Secrets.Tests
                 ReloadMilliseconds = Timeout.Infinite
             };
 
-            var provider = new SecretsConfigurationProvider(source);
+            using var provider = new SecretsConfigurationProvider(source);
 
             provider.Load();
 
@@ -116,10 +116,10 @@ namespace RockLib.Secrets.Tests
             barValue.Should().BeNull();
         }
 
-        [Fact(DisplayName = "Load method invokes exception handler when ISecret.GetValue method throws")]
-        public void LoadMethodSadPath()
+        [Fact]
+        public static void LoadMethodWhenGetValueThrowsException()
         {
-            var exception = new Exception();
+            var exception = new ArgumentNullException();
 
             var mockSecret1 = MockSecret.Get("foo", "abc");
             var mockSecret2 = MockSecret.Get("bar", exception);
@@ -138,7 +138,7 @@ namespace RockLib.Secrets.Tests
                 OnSecretException = OnSecretException
             };
 
-            var provider = new SecretsConfigurationProvider(source);
+            using var provider = new SecretsConfigurationProvider(source);
 
             provider.Load();
 
