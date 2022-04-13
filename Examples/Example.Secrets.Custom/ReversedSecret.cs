@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Example.Secrets.Custom
 {
-    public class ReversedSecret : ISecret
+    internal sealed class ReversedSecret : ISecret
     {
         private readonly string _secret;
 
