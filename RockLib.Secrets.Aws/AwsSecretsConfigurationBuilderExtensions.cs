@@ -21,10 +21,12 @@ namespace RockLib.Secrets.Aws
         /// </param>
         /// <returns>The same <see cref="ISecretsConfigurationBuilder"/>.</returns>
         public static ISecretsConfigurationBuilder AddAwsSecret(this ISecretsConfigurationBuilder builder,
-            string configurationKey, string secretId, string secretKey = null, IAmazonSecretsManager secretsManager = null)
+            string configurationKey, string secretId, string? secretKey = null, IAmazonSecretsManager? secretsManager = null)
         {
             if (builder is null)
+            {
                 throw new ArgumentNullException(nameof(builder));
+            }
 
             return builder.AddSecret(new AwsSecret(configurationKey, secretId, secretKey, secretsManager));
         }

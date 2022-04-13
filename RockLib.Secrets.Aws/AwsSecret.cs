@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Threading.Tasks;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Newtonsoft.Json.Linq;
@@ -12,7 +14,7 @@ namespace RockLib.Secrets.Aws
     /// </summary>
     public class AwsSecret : ISecret
     {
-        private static IAmazonSecretsManager _defaultSecretsManager;
+        private static IAmazonSecretsManager? _defaultSecretsManager;
         private readonly string _exceptionMessageFormat;
 
         /// <summary>
@@ -25,8 +27,8 @@ namespace RockLib.Secrets.Aws
         /// The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS. If <see langword="null"/>,
         /// then <see cref="AwsSecret.DefaultSecretsManager"/> is used instead.
         /// </param>
-        public AwsSecret(string configurationKey, string secretId, string secretKey = null,
-            [DefaultType(typeof(AmazonSecretsManagerClient))]IAmazonSecretsManager secretsManager = null)
+        public AwsSecret(string configurationKey, string secretId, string? secretKey = null,
+            [DefaultType(typeof(AmazonSecretsManagerClient))]IAmazonSecretsManager? secretsManager = null)
         {
             ConfigurationKey = configurationKey ?? throw new ArgumentNullException(nameof(configurationKey));
             SecretId = secretId ?? throw new ArgumentNullException(nameof(secretId));
@@ -34,9 +36,13 @@ namespace RockLib.Secrets.Aws
             SecretsManager = secretsManager ?? DefaultSecretsManager;
 
             if (secretKey is null)
+            {
                 _exceptionMessageFormat = $"No secret was found with the AwsSecretName '{SecretId}' for the key '{ConfigurationKey}': {{0}}";
+            }
             else
+            {
                 _exceptionMessageFormat = $"No secret was found with the AwsSecretName '{SecretId}' and AwsSecretKey '{SecretKey}' for the key '{ConfigurationKey}': {{0}}";
+            }
         }
 
         /// <summary>
@@ -45,7 +51,7 @@ namespace RockLib.Secrets.Aws
         /// </summary>
         public static IAmazonSecretsManager DefaultSecretsManager
         {
-            get => _defaultSecretsManager ?? (_defaultSecretsManager = new AmazonSecretsManagerClient());
+            get => _defaultSecretsManager ??= new AmazonSecretsManagerClient();
             set => _defaultSecretsManager = value ?? throw new ArgumentNullException(nameof(value));
         }
 
@@ -62,7 +68,7 @@ namespace RockLib.Secrets.Aws
         /// <summary>
         /// Gets the "Secret Key" of the secret.
         /// </summary>
-        public string SecretKey { get; }
+        public string? SecretKey { get; }
 
         /// <summary>
         /// Gets the <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.
@@ -73,7 +79,7 @@ namespace RockLib.Secrets.Aws
         /// Gets the value of the secret.
         /// </summary>
         /// <returns>The secret value.</returns>
-        public string GetValue()
+        public async Task<string> GetValueAsync()
         {
             var request = new GetSecretValueRequest
             {
@@ -81,29 +87,40 @@ namespace RockLib.Secrets.Aws
             };
 
             // NOTE: Returns an async calls value safely.
-            var response = Sync.OverAsync(() => SecretsManager.GetSecretValueAsync(request));
+            var response = await SecretsManager.GetSecretValueAsync(request).ConfigureAwait(false);
 
-            if (response == null)
-                throw new KeyNotFoundException(string.Format(_exceptionMessageFormat, "Response was null."));
-
-            if (response.SecretString != null)
+            if (response is null)
             {
-                if (SecretKey != null)
+                throw new KeyNotFoundException(
+                    string.Format(CultureInfo.InvariantCulture, 
+                        _exceptionMessageFormat, "Response was null."));
+            }
+
+            if (response.SecretString is not null)
+            {
+                if (SecretKey is not null)
                 {
                     var secret = JObject.Parse(response.SecretString)[SecretKey];
-                    if (secret != null)
-                        return secret.ToString();
 
-                    throw new KeyNotFoundException(string.Format(_exceptionMessageFormat, $"Response did not contain item with the name '{SecretKey}'."));
+                    if (secret is not null)
+                    {
+                        return secret.ToString();
+                    }
+
+                    throw new KeyNotFoundException(
+                        string.Format(CultureInfo.InvariantCulture, 
+                            _exceptionMessageFormat, $"Response did not contain item with the name '{SecretKey}'."));
                 }
 
                 return response.SecretString;
             }
 
-            if (response.SecretBinary != null)
+            if (response.SecretBinary is not null)
                 return Convert.ToBase64String(response.SecretBinary.ToArray());
 
-            throw new KeyNotFoundException(string.Format(_exceptionMessageFormat, "Response did not contain a value for SecretString or SecretBinary."));
+            throw new KeyNotFoundException(
+                string.Format(CultureInfo.InvariantCulture, 
+                    _exceptionMessageFormat, "Response did not contain a value for SecretString or SecretBinary."));
         }
     }
 }
