@@ -17,11 +17,11 @@ application.MapGet("/{city}", async (IHttpClientFactory factory, [FromRoute] Cit
     GetCoordinates(city, out var latitude, out var longitude);
 
     using var httpClient = factory.CreateClient("OpenUV");
-    var response = await httpClient.GetAsync(new Uri($"https://api.openuv.io/api/v1/uv?lat={latitude}&lng={longitude}")).ConfigureAwait(false);
+    var response = await httpClient.GetAsync(
+        new Uri($"https://api.openuv.io/api/v1/uv?lat={latitude}&lng={longitude}")).ConfigureAwait(false);
     var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
     dynamic parsedContent = JObject.Parse(content);
-
     return parsedContent.result.uv;
 });
 
@@ -73,32 +73,3 @@ static void GetCoordinates(City city, out double latitude, out double longitude)
             throw new ArgumentOutOfRangeException(nameof(city), city, null);
     }
 }
-
-/*
-
-using System;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using RockLib.Secrets;
-
-namespace Example.Secrets.Aws.AspNetCore
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration(builder =>
-                    builder.SetSecretExceptionHandler(context => Console.WriteLine(context.Exception))
-                        .AddRockLibSecrets())
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
-}
-*/
