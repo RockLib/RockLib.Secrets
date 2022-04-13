@@ -1,8 +1,6 @@
 ﻿using Example.Secrets.Custom;
 using Microsoft.Extensions.Configuration;
 using RockLib.Secrets;
-using System;
-using System.Diagnostics;
 
 // This example defines two secrets to be added to configuration. The 'SomeApiKey'
 // secret is added programmatically and the 'MyConnectionString' secret is defined
