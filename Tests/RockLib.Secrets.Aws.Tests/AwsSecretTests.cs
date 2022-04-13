@@ -20,8 +20,8 @@ namespace RockLib.Secrets.Aws.Tests
             AwsSecret.DefaultSecretsManager = new AmazonSecretsManagerClient(RegionEndpoint.USEast1);
         }
 
-        [Fact(DisplayName = "Constructor sets properties")]
-        public static void ConstructorHappyPath1()
+        [Fact]
+        public static void Create()
         {
             var secretsManager = new Mock<IAmazonSecretsManager>().Object;
 
@@ -33,8 +33,8 @@ namespace RockLib.Secrets.Aws.Tests
             secret.SecretsManager.Should().BeSameAs(secretsManager);
         }
 
-        [Fact(DisplayName = "Constructor does not require secretKey parameter")]
-        public static void ConstructorHappyPath2()
+        [Fact]
+        public static void CreateWithNoSecretKey()
         {
             var secretsManager = new Mock<IAmazonSecretsManager>().Object;
 
@@ -46,8 +46,8 @@ namespace RockLib.Secrets.Aws.Tests
             secret.SecretsManager.Should().BeSameAs(secretsManager);
         }
 
-        [Fact(DisplayName = "Constructor sets SecretsManager to DefaultSecretsManager if not specified")]
-        public static void ConstructorHappyPath3()
+        [Fact]
+        public static void CreateWithDefaultSecretsManager()
         {
             var secret = new AwsSecret("configurationKey", "secretId", "secretKey");
 
@@ -57,24 +57,24 @@ namespace RockLib.Secrets.Aws.Tests
             secret.SecretsManager.Should().BeSameAs(AwsSecret.DefaultSecretsManager);
         }
 
-        [Fact(DisplayName = "Constructor throws if configurationKey is null")]
-        public static void ConstructorSadPath1()
+        [Fact]
+        public static void CreateWithNullConfigurationKey()
         {
             var act = () => new AwsSecret(null!, "secretId");
 
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*configurationKey*");
         }
 
-        [Fact(DisplayName = "Constructor throws if secretId is null")]
-        public static void ConstructorSadPath2()
+        [Fact]
+        public static void CreateWithNullSecretId()
         {
             var act = () => new AwsSecret("configurationKey", null!);
 
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*secretId*");
         }
 
-        [Fact(DisplayName = "DefaultSecretsManager property setter works as expected")]
-        public static void DefaultSecretsManagerPropertySetterHappyPath()
+        [Fact]
+        public static void UsingDefaultSecretsManager()
         {
             var current = AwsSecret.DefaultSecretsManager;
             try
@@ -91,16 +91,16 @@ namespace RockLib.Secrets.Aws.Tests
             }
         }
 
-        [Fact(DisplayName = "DefaultSecretsManager property setter throws if value is null")]
-        public static void DefaultSecretsManagerPropertySetterSadPath()
+        [Fact]
+        public static void UsingDefaultSecretsManagerWithNullSet()
         {
             var act = () => AwsSecret.DefaultSecretsManager = null!;
 
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*value*");
         }
 
-        [Fact(DisplayName = "DefaultSecretsManager property has a default value of type AmazonSecretsManagerClient", Skip = "Can only be run on a machine with AWS credentials")]
-        public static void DefaultSecretsManagerPropertyDefaultValue()
+        [Fact(Skip = "Can only be run on a machine with AWS credentials")]
+        public static void UsingDefaultSecretsManagerDefaultValue()
         {
             var current = AwsSecret.DefaultSecretsManager;
 
@@ -116,8 +116,8 @@ namespace RockLib.Secrets.Aws.Tests
             }
         }
 
-        [Fact(DisplayName = "GetValue method returns the value of the secret key when supplied")]
-        public static void GetValueMethodHappyPath1()
+        [Fact]
+        public static void GetValue()
         {
             var response = new GetSecretValueResponse
             {
@@ -139,8 +139,8 @@ namespace RockLib.Secrets.Aws.Tests
                 Times.Once());
         }
 
-        [Fact(DisplayName = "GetValue method returns the entire SecretString if SecretKey is not supplied")]
-        public static void GetValueMethodHappyPath2()
+        [Fact]
+        public static void GetValueWhenSecretKeyIsNotSupplied()
         {
             var response = new GetSecretValueResponse
             {
@@ -162,8 +162,8 @@ namespace RockLib.Secrets.Aws.Tests
                 Times.Once());
         }
 
-        [Fact(DisplayName = "GetValue method returns the base64 encoded SecretBinary if SecretString is null")]
-        public static void GetValueMethodHappyPath3()
+        [Fact]
+        public static void GetValueWhenSecretStringIsNull()
         {
             var buffer = Encoding.UTF8.GetBytes("Hello, world!");
 
@@ -187,8 +187,8 @@ namespace RockLib.Secrets.Aws.Tests
                 Times.Once());
         }
 
-        [Fact(DisplayName = "GetValue method throws if SecretsManager returns null response")]
-        public static void GetValueMethodSadPath1()
+        [Fact]
+        public static void GetValueWithNullResponseFromSecretsManager()
         {
             var mockSecretsManager = new Mock<IAmazonSecretsManager>();
             mockSecretsManager.Setup(m => m.GetSecretValueAsync(It.IsAny<GetSecretValueRequest>(), It.IsAny<CancellationToken>()))
@@ -201,8 +201,8 @@ namespace RockLib.Secrets.Aws.Tests
             act.Should().ThrowExactly<KeyNotFoundException>().WithMessage("*Response was null.*");
         }
 
-        [Fact(DisplayName = "GetValue method throws if SecretString does not contain the SecretKey")]
-        public static void GetValueMethodSadPath2()
+        [Fact]
+        public static void GetValueWhenSecretStringDoesNotContainSecretKey()
         {
             var response = new GetSecretValueResponse
             {
@@ -220,8 +220,8 @@ namespace RockLib.Secrets.Aws.Tests
             act.Should().ThrowExactly<KeyNotFoundException>().WithMessage("*Response did not contain item with the name 'myAwsSecretKey'.*");
         }
 
-        [Fact(DisplayName = "GetValue method throws if SecretString and SecretBinary are both null")]
-        public static void GetValueMethodSadPath3()
+        [Fact]
+        public static void GetValueWhenSecretStringandSecretBinaryAreNull()
         {
             var response = new GetSecretValueResponse();
 
