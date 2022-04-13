@@ -7,10 +7,10 @@ using Xunit;
 
 namespace RockLib.Secrets.Aws.Tests
 {
-    partial class AwsSecretTests
+    public static partial class AwsSecretTests
     {
         [Fact(DisplayName = "SetAmazonSecretsManager extension method sets AwsSecret.DefaultSecretsManager")]
-        public void SetAmazonSecretsManagerMethodHappyPath()
+        public static void SetAmazonSecretsManagerMethodHappyPath()
         {
             var current = AwsSecret.DefaultSecretsManager;
 
@@ -32,11 +32,11 @@ namespace RockLib.Secrets.Aws.Tests
         }
 
         [Fact(DisplayName = "SetAmazonSecretsManager extension method throws if secretsManager is null")]
-        public void SetAmazonSecretsManagerMethodSadPath()
+        public static void SetAmazonSecretsManagerMethodSadPath()
         {
             IConfigurationBuilder builder = new ConfigurationBuilder();
 
-            Action act = () => builder.SetAmazonSecretsManager(null);
+            Action act = () => builder.SetAmazonSecretsManager(null!);
 
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*secretsManager*");
         }

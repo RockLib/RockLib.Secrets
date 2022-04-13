@@ -79,15 +79,20 @@ namespace RockLib.Secrets.Aws
         /// Gets the value of the secret.
         /// </summary>
         /// <returns>The secret value.</returns>
-        public async Task<string> GetValueAsync()
+        public string GetValue()
         {
             var request = new GetSecretValueRequest
             {
                 SecretId = SecretId
             };
 
-            // NOTE: Returns an async calls value safely.
-            var response = await SecretsManager.GetSecretValueAsync(request).ConfigureAwait(false);
+            // NOTE: This is NOT ideal. We should be awaiting the call.
+            // But ISecret only has a sync version for GetValue().
+            // Furthermore, providing an async version (GetValueAsync()) doesn't help,
+            // because configuration is synchronous.
+            // This issue, if resolved, would fix this: https://github.com/dotnet/runtime/issues/36018
+            // But it's still open :(. So we have to block the call here for now.
+            var response = SecretsManager.GetSecretValueAsync(request).GetAwaiter().GetResult();
 
             if (response is null)
             {

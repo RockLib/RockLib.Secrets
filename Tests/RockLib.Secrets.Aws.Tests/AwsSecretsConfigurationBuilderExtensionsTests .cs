@@ -6,12 +6,12 @@ using Xunit;
 
 namespace RockLib.Secrets.Aws.Tests
 {
-    partial class AwsSecretTests
+    public static partial class AwsSecretTests
     {
         [Fact(DisplayName = "AddAwsSecret calls AddSecret with AwsSecret with all passed in values")]
-        public void AddAwsSecretHappyPath()
+        public static void AddAwsSecretHappyPath()
         {
-            ISecret secret = null;
+            ISecret secret = null!;
             var builderMock = new Mock<ISecretsConfigurationBuilder>();
             builderMock
                 .Setup(bm => bm.AddSecret(It.IsAny<ISecret>()))
@@ -34,14 +34,14 @@ namespace RockLib.Secrets.Aws.Tests
         }
 
         [Fact(DisplayName = "AddAwsSecret throws is builder is null")]
-        public void AddAwsSecretSadPath()
+        public static void AddAwsSecretSadPath()
         {
             var configurationKey = "configurationKey";
             var secretId = "secretId";
             var secretKey = "secretKey";
             var awsSecretsManager = new Mock<IAmazonSecretsManager>().Object;
 
-            ISecretsConfigurationBuilder builder = null;
+            ISecretsConfigurationBuilder builder = null!;
 
             Action act = () => builder.AddAwsSecret(configurationKey, secretId, secretKey, awsSecretsManager);
 
