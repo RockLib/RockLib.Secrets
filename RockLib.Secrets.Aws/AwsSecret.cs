@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Threading.Tasks;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Newtonsoft.Json.Linq;
-using RockLib.Configuration.ObjectFactory;
 
 namespace RockLib.Secrets.Aws
 {
@@ -14,7 +12,6 @@ namespace RockLib.Secrets.Aws
     /// </summary>
     public class AwsSecret : ISecret
     {
-        private static IAmazonSecretsManager? _defaultSecretsManager;
         private readonly string _exceptionMessageFormat;
 
         /// <summary>
@@ -24,16 +21,22 @@ namespace RockLib.Secrets.Aws
         /// <param name="secretId">The Amazon Resource Name (ARN) or the friendly name of the secret.</param>
         /// <param name="secretKey">The key of the secret in AWS.</param>
         /// <param name="secretsManager">
-        /// The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS. If <see langword="null"/>,
-        /// then <see cref="AwsSecret.DefaultSecretsManager"/> is used instead.
+        /// The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.
         /// </param>
-        public AwsSecret(string configurationKey, string secretId, string? secretKey = null,
-            [DefaultType(typeof(AmazonSecretsManagerClient))]IAmazonSecretsManager? secretsManager = null)
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="secretsManager"/> is <c>null</c>.
+        /// </exception>
+        public AwsSecret(string configurationKey, string secretId, string? secretKey, IAmazonSecretsManager secretsManager)
         {
+            if (secretsManager is null)
+            {
+                throw new ArgumentNullException(nameof(secretsManager));
+            }
+
             ConfigurationKey = configurationKey ?? throw new ArgumentNullException(nameof(configurationKey));
             SecretId = secretId ?? throw new ArgumentNullException(nameof(secretId));
             SecretKey = secretKey;
-            SecretsManager = secretsManager ?? DefaultSecretsManager;
+            SecretsManager = secretsManager;
 
             if (secretKey is null)
             {
@@ -44,17 +47,6 @@ namespace RockLib.Secrets.Aws
                 _exceptionMessageFormat = $"No secret was found with the AwsSecretName '{SecretId}' and AwsSecretKey '{SecretKey}' for the key '{ConfigurationKey}': {{0}}";
             }
         }
-
-        /// <summary>
-        /// Gets or sets the instance of <see cref="IAmazonSecretsManager"/> to be used by the
-        /// <see cref="AwsSecret"/> class when a secrets manager is not provided to its constructor.
-        /// </summary>
-        public static IAmazonSecretsManager DefaultSecretsManager
-        {
-            get => _defaultSecretsManager ??= new AmazonSecretsManagerClient();
-            set => _defaultSecretsManager = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
         /// <summary>
         /// Gets the configuration key for the secret.
         /// </summary>

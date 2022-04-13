@@ -15,11 +15,6 @@ namespace RockLib.Secrets.Aws.Tests
 {
     public static partial class AwsSecretTests
     {
-        static AwsSecretTests()
-        {
-            AwsSecret.DefaultSecretsManager = new AmazonSecretsManagerClient(RegionEndpoint.USEast1);
-        }
-
         [Fact]
         public static void Create()
         {
@@ -38,7 +33,7 @@ namespace RockLib.Secrets.Aws.Tests
         {
             var secretsManager = new Mock<IAmazonSecretsManager>().Object;
 
-            var secret = new AwsSecret("configurationKey", "secretId", secretsManager: secretsManager);
+            var secret = new AwsSecret("configurationKey", "secretId", null, secretsManager);
 
             secret.ConfigurationKey.Should().Be("configurationKey");
             secret.SecretId.Should().Be("secretId");
@@ -47,20 +42,9 @@ namespace RockLib.Secrets.Aws.Tests
         }
 
         [Fact]
-        public static void CreateWithDefaultSecretsManager()
-        {
-            var secret = new AwsSecret("configurationKey", "secretId", "secretKey");
-
-            secret.ConfigurationKey.Should().Be("configurationKey");
-            secret.SecretId.Should().Be("secretId");
-            secret.SecretKey.Should().Be("secretKey");
-            secret.SecretsManager.Should().BeSameAs(AwsSecret.DefaultSecretsManager);
-        }
-
-        [Fact]
         public static void CreateWithNullConfigurationKey()
         {
-            var act = () => new AwsSecret(null!, "secretId");
+            var act = () => new AwsSecret(null!, "secretId", null, Mock.Of<IAmazonSecretsManager>());
 
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*configurationKey*");
         }
@@ -68,52 +52,9 @@ namespace RockLib.Secrets.Aws.Tests
         [Fact]
         public static void CreateWithNullSecretId()
         {
-            var act = () => new AwsSecret("configurationKey", null!);
+            var act = () => new AwsSecret("configurationKey", null!, null, Mock.Of<IAmazonSecretsManager>());
 
             act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*secretId*");
-        }
-
-        [Fact]
-        public static void UsingDefaultSecretsManager()
-        {
-            var current = AwsSecret.DefaultSecretsManager;
-            try
-            {
-                var secretsManager = new Mock<IAmazonSecretsManager>().Object;
-
-                AwsSecret.DefaultSecretsManager = secretsManager;
-
-                AwsSecret.DefaultSecretsManager.Should().BeSameAs(secretsManager);
-            }
-            finally
-            {
-                AwsSecret.DefaultSecretsManager = current;
-            }
-        }
-
-        [Fact]
-        public static void UsingDefaultSecretsManagerWithNullSet()
-        {
-            var act = () => AwsSecret.DefaultSecretsManager = null!;
-
-            act.Should().ThrowExactly<ArgumentNullException>().WithMessage("*value*");
-        }
-
-        [Fact(Skip = "Can only be run on a machine with AWS credentials")]
-        public static void UsingDefaultSecretsManagerDefaultValue()
-        {
-            var current = AwsSecret.DefaultSecretsManager;
-
-            try
-            {
-                typeof(AwsSecret).Unlock()._defaultSecretsManager = null;
-
-                AwsSecret.DefaultSecretsManager.Should().BeOfType<AmazonSecretsManagerClient>();
-            }
-            finally
-            {
-                AwsSecret.DefaultSecretsManager = current;
-            }
         }
 
         [Fact]
@@ -151,7 +92,7 @@ namespace RockLib.Secrets.Aws.Tests
             mockSecretsManager.Setup(m => m.GetSecretValueAsync(It.IsAny<GetSecretValueRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
-            var secret = new AwsSecret("myConfigurationKey", "mySecretId", secretsManager: mockSecretsManager.Object);
+            var secret = new AwsSecret("myConfigurationKey", "mySecretId", null, mockSecretsManager.Object);
 
             var value = secret.GetValue();
 
@@ -176,7 +117,7 @@ namespace RockLib.Secrets.Aws.Tests
             mockSecretsManager.Setup(m => m.GetSecretValueAsync(It.IsAny<GetSecretValueRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
-            var secret = new AwsSecret("myConfigurationKey", "mySecretId", secretsManager: mockSecretsManager.Object);
+            var secret = new AwsSecret("myConfigurationKey", "mySecretId", null, mockSecretsManager.Object);
 
             var value = secret.GetValue();
 

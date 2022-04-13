@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Changed
 - Supported targets: net6.0, netcoreapp3.1, and net48.
 - As the package now uses nullable reference types, some method parameters now specify if they can accept nullable values.
-- `AwsSecret.GetValue()` is not asynchronous and renamed as `GetValueAsync()`.
+- `AwsSecret.DefaultSecretsManager` has been removed. Typically this would just end up being an instance of `AmazonSecretsManagerClient`. This also means that `AwsConfigurationBuilderExtensions.SetAmazonSecretsManager` is no longer necessary.
 
 ## 1.0.8 - 2021-08-12
 
