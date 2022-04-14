@@ -3,7 +3,6 @@ using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using FluentAssertions;
 using Moq;
-using RockLib.Dynamic;
 using System;
 using System.Collections.Generic;
 using System.IO;
