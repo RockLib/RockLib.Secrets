@@ -6,12 +6,12 @@ using Xunit;
 
 namespace RockLib.Secrets.Aws.Tests
 {
-    partial class AwsSecretTests
+    public static partial class AwsSecretTests
     {
-        [Fact(DisplayName = "AddAwsSecret calls AddSecret with AwsSecret with all passed in values")]
-        public void AddAwsSecretHappyPath()
+        [Fact]
+        public static void AddAwsSecret()
         {
-            ISecret secret = null;
+            ISecret secret = null!;
             var builderMock = new Mock<ISecretsConfigurationBuilder>();
             builderMock
                 .Setup(bm => bm.AddSecret(It.IsAny<ISecret>()))
@@ -24,7 +24,7 @@ namespace RockLib.Secrets.Aws.Tests
 
             builderMock.Object.AddAwsSecret(configurationKey, secretId, secretKey, awsSecretsManager);
 
-            builderMock.Verify(bm => bm.AddSecret(It.IsAny<ISecret>()), Times.Once);
+            builderMock.Verify();
 
             var awsSecret = secret.Should().BeOfType<AwsSecret>().Subject;
             awsSecret.ConfigurationKey.Should().Be(configurationKey);
@@ -33,15 +33,15 @@ namespace RockLib.Secrets.Aws.Tests
             awsSecret.SecretsManager.Should().BeSameAs(awsSecretsManager);
         }
 
-        [Fact(DisplayName = "AddAwsSecret throws is builder is null")]
-        public void AddAwsSecretSadPath()
+        [Fact]
+        public static void AddAwsSecretWithNullBuilder()
         {
             var configurationKey = "configurationKey";
             var secretId = "secretId";
             var secretKey = "secretKey";
             var awsSecretsManager = new Mock<IAmazonSecretsManager>().Object;
 
-            ISecretsConfigurationBuilder builder = null;
+            ISecretsConfigurationBuilder builder = null!;
 
             Action act = () => builder.AddAwsSecret(configurationKey, secretId, secretKey, awsSecretsManager);
 

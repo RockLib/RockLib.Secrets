@@ -1,4 +1,4 @@
-﻿namespace Example.Secrets.Aws.AspNetCore.Controllers
+﻿namespace Example.Secrets.Aws.AspNetCore
 {
     public enum City
     {

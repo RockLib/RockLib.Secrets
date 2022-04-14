@@ -8,34 +8,10 @@ Add AWS secrets to the `ISecretsConfigurationBuilder` by calling the `AddAwsSecr
 - `secretKey` (optional)
   - The key of the secret in AWS.
 - `secretsManager` (optional)
-  - The client object used for routing calls to AWS. If not specified, the value of the `AwsSecret.DefaultSecretsManager` static property ([see below](#setting-the-default-amazonsecretsmanager)) is used.
+  - The client object used for routing calls to AWS. Typically, this is an instance of `AmazonSecretsManagerClient`.
 
 ```c#
-IConfigurationBuilder builder = new ConfigurationBuilder();
-
-IAmazonSecretsManager secretsManager = new AmazonSecretsManagerClient();
-
+var builder = new ConfigurationBuilder();
 builder.AddRockLibSecrets()
-    .AddAwsSecret("MyConnectionString", "MyApp", "ConnectionString", secretsManager)
+  .AddAwsSecret("MyConnectionString", "MyApp", "ConnectionString", new AmazonSecretsManagerClient())
 ```
-
-### Setting the default AmazonSecretsManager
-
-To set the default secrets manager, set the value of the static `DefaultSecretsManager` property:
-
-```c#
-AwsSecret.DefaultSecretsManager = new AmazonSecretsManagerClient(RegionEndpoint.USEast1);
-```
-
-Or call the `SetAmazonSecretsManager` extension method on an instance of `IConfigurationBuilder`:
-
-```c#
-IConfigurationBuilder builder = new ConfigurationBuilder();
-
-builder
-    .SetAmazonSecretsManager(new AmazonSecretsManagerClient(RegionEndpoint.USEast1))
-    .AddRockLibSecrets()
-        .AddAwsSecret("MyConnectionString", "MyApp", "ConnectionString");
-```
-
-*Note that this extension method does not actually add anything to the configuration builder - it only sets the value of the `AwsSecret.DefaultSecretsManager` property.*
