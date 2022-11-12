@@ -1,8 +1,13 @@
+---
+sidebar_position: 2
+sidebar_label: 'Add secrets to configuration builder'
+---
+
 # How to add secrets directly to a configuration builder
 
 To add secrets to an `IConfigurationBuilder`, call the `AddRockLibSecrets` extension method on the builder, optionally passing an `Action<SecretsConfigurationSource>` for [configuring the source](#SecretsConfigurationSource).
 
-```c#
+```csharp
 IConfigurationBuilder builder = new ConfigurationBuilder();
 
 builder.AddRockLibSecrets(source =>
@@ -13,7 +18,7 @@ builder.AddRockLibSecrets(source =>
 
 This extension method returns an `ISecretsConfigurationBuilder`, which has a `AddSecret` method for adding secrets.
 
-```c#
+```csharp
 IConfigurationBuilder builder = new ConfigurationBuilder();
 
 ISecretsConfigurationBuilder secretsBuilder = builder.AddRockLibSecrets();
@@ -23,7 +28,7 @@ secretsBuilder.AddSecret(new MyCustomSecret(configurationKey: "MyConnectionStrin
 
  Implementations of `ISecret`, such as `AwsSecret`, have extension methods for simplifying the adding of a secret:
 
-```c#
+```csharp
 IConfigurationBuilder builder = new ConfigurationBuilder();
 
 ISecretsConfigurationBuilder secretsBuilder = builder.AddRockLibSecrets();
@@ -33,7 +38,7 @@ secretsBuilder.AddAwsSecret("MyConnectionString", "MySecretId", "MySecretKey");
 
 ---
 
-### SecretsConfigurationSource
+## SecretsConfigurationSource
 
 The `SecretsConfigurationSource` defines several options:
 

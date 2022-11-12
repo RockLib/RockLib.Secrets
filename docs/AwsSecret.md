@@ -1,3 +1,8 @@
+---
+sidebar_position: 5
+sidebar_label: 'Configure AWS secrets'
+---
+
 # How to configure AWS secrets
 
 Add AWS secrets to the `ISecretsConfigurationBuilder` by calling the `AddAwsSecret` method, supplying the following parameters:
@@ -10,7 +15,7 @@ Add AWS secrets to the `ISecretsConfigurationBuilder` by calling the `AddAwsSecr
 - `secretsManager` (optional)
   - The client object used for routing calls to AWS. Typically, this is an instance of `AmazonSecretsManagerClient`.
 
-```c#
+```csharp
 var builder = new ConfigurationBuilder();
 builder.AddRockLibSecrets()
   .AddAwsSecret("MyConnectionString", "MyApp", "ConnectionString", new AmazonSecretsManagerClient())
