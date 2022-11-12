@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # Getting Started
 
 In this tutorial, we will be building a console application that prints out the value of secrets read from configuration, by reversing the secret text.
@@ -14,7 +18,7 @@ Add a nuget reference for "RockLib.Secrets" to the project.
 
 Add a class named 'ReversedSecret.cs' to the project. Replace the default code with the following:
 
-```c#
+```csharp
 using RockLib.Secrets;
 using System.Linq;
 
@@ -81,7 +85,7 @@ This configuration will set up three secrets that can be accessed through config
 
 Edit the `Program.cs` file as follows:
 
-```c#
+```csharp
 using Microsoft.Extensions.Configuration;
 using RockLib.Secrets;
 using System;
@@ -114,7 +118,7 @@ namespace SecretsTutorial
 
 Start the application. It should print out the reversed secrets, like below:
 
-```
+```powershell
 First Secret: This is the first secret
 Second Secret: This is the second secret
 Third Secret: This is the third secret
