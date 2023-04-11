@@ -48,7 +48,7 @@ namespace RockLib.Secrets.Aws.Tests
             secret.ConfigurationKey.Should().Be("configurationKey");
             secret.SecretId.Should().Be("secretId");
             secret.SecretKey.Should().Be("secretKey");
-            secret.SecretsManager.Should().BeOfType(typeof(AmazonSecretsManagerClient));
+            secret.SecretsManager.Should().BeNull();
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace RockLib.Secrets.Aws.Tests
             secret.ConfigurationKey.Should().Be("configurationKey");
             secret.SecretId.Should().Be("secretId");
             secret.SecretKey.Should().BeNull();
-            secret.SecretsManager.Should().BeOfType(typeof(AmazonSecretsManagerClient));
+            secret.SecretsManager.Should().BeNull();
         }
 
         [Fact]

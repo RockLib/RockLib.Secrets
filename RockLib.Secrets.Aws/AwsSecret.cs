@@ -32,7 +32,7 @@ namespace RockLib.Secrets.Aws
             ConfigurationKey = configurationKey ?? throw new ArgumentNullException(nameof(configurationKey));
             SecretId = secretId ?? throw new ArgumentNullException(nameof(secretId));
             SecretKey = secretKey;
-            SecretsManager = secretsManager ?? new AmazonSecretsManagerClient();
+            SecretsManager = secretsManager;
 
             if (secretKey is null)
             {
@@ -61,7 +61,7 @@ namespace RockLib.Secrets.Aws
         /// <summary>
         /// Gets the <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.
         /// </summary>
-        public IAmazonSecretsManager SecretsManager { get; }
+        public IAmazonSecretsManager? SecretsManager { get; private set; }
 
         /// <summary>
         /// Gets the value of the secret.
@@ -73,6 +73,9 @@ namespace RockLib.Secrets.Aws
             {
                 SecretId = SecretId
             };
+
+            // Set the manager to the AWS one if it wasn't provided.
+            SecretsManager ??= new AmazonSecretsManagerClient();
 
             // NOTE: This is NOT ideal. We should be awaiting the call.
             // But ISecret only has a sync version for GetValue().
