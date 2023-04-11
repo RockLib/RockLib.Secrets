@@ -21,18 +21,11 @@ namespace RockLib.Secrets.Aws
         /// <param name="secretId">The Amazon Resource Name (ARN) or the friendly name of the secret.</param>
         /// <param name="secretKey">The key of the secret in AWS.</param>
         /// <param name="secretsManager">
-        /// The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.
+        /// The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS. If <c>null</c>, an instance of <see cref="AmazonSecretsManagerClient"/> will be used.
         /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if <paramref name="secretsManager"/> is <c>null</c>.
-        /// </exception>
-        public AwsSecret(string configurationKey, string secretId, string? secretKey, IAmazonSecretsManager secretsManager)
+        public AwsSecret(string configurationKey, string secretId, string? secretKey = null, 
+            IAmazonSecretsManager? secretsManager = null)
         {
-            if (secretsManager is null)
-            {
-                throw new ArgumentNullException(nameof(secretsManager));
-            }
-
             ConfigurationKey = configurationKey ?? throw new ArgumentNullException(nameof(configurationKey));
             SecretId = secretId ?? throw new ArgumentNullException(nameof(secretId));
             SecretKey = secretKey;
@@ -65,7 +58,7 @@ namespace RockLib.Secrets.Aws
         /// <summary>
         /// Gets the <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS.
         /// </summary>
-        public IAmazonSecretsManager SecretsManager { get; }
+        public IAmazonSecretsManager? SecretsManager { get; private set; }
 
         /// <summary>
         /// Gets the value of the secret.
@@ -77,6 +70,9 @@ namespace RockLib.Secrets.Aws
             {
                 SecretId = SecretId
             };
+
+            // Set the manager to the AWS one if it wasn't provided.
+            SecretsManager ??= new AmazonSecretsManagerClient();
 
             // NOTE: This is NOT ideal. We should be awaiting the call.
             // But ISecret only has a sync version for GetValue().
@@ -113,7 +109,9 @@ namespace RockLib.Secrets.Aws
             }
 
             if (response.SecretBinary is not null)
+            {
                 return Convert.ToBase64String(response.SecretBinary.ToArray());
+            }
 
             throw new KeyNotFoundException(
                 string.Format(CultureInfo.InvariantCulture, 
