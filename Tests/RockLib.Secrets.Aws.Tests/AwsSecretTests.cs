@@ -28,7 +28,7 @@ namespace RockLib.Secrets.Aws.Tests
         }
 
         [Fact]
-        public static void CreateWithNoSecretKey()
+        public static void CreateWithNullSecretKey()
         {
             var secretsManager = new Mock<IAmazonSecretsManager>().Object;
 
@@ -38,6 +38,28 @@ namespace RockLib.Secrets.Aws.Tests
             secret.SecretId.Should().Be("secretId");
             secret.SecretKey.Should().BeNull();
             secret.SecretsManager.Should().BeSameAs(secretsManager);
+        }
+
+        [Fact]
+        public static void CreateWithNullManager()
+        {
+            var secret = new AwsSecret("configurationKey", "secretId", "secretKey", null);
+
+            secret.ConfigurationKey.Should().Be("configurationKey");
+            secret.SecretId.Should().Be("secretId");
+            secret.SecretKey.Should().Be("secretKey");
+            secret.SecretsManager.Should().BeOfType(typeof(AmazonSecretsManagerClient));
+        }
+
+        [Fact]
+        public static void CreateWithNoSecretKeyAndManager()
+        {
+            var secret = new AwsSecret("configurationKey", "secretId");
+
+            secret.ConfigurationKey.Should().Be("configurationKey");
+            secret.SecretId.Should().Be("secretId");
+            secret.SecretKey.Should().BeNull();
+            secret.SecretsManager.Should().BeOfType(typeof(AmazonSecretsManagerClient));
         }
 
         [Fact]
