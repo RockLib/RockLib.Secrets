@@ -242,3 +242,4 @@ public sealed class FakeSecretsManager
         throw new NotImplementedException();
     }
 }
+#pragma warning restore CA1065
