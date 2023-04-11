@@ -23,9 +23,6 @@ namespace RockLib.Secrets.Aws
         /// <param name="secretsManager">
         /// The <see cref="IAmazonSecretsManager"/> client used for routing calls to AWS. If <c>null</c>, an instance of <see cref="AmazonSecretsManagerClient"/> will be used.
         /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if <paramref name="secretsManager"/> is <c>null</c>.
-        /// </exception>
         public AwsSecret(string configurationKey, string secretId, string? secretKey = null, 
             IAmazonSecretsManager? secretsManager = null)
         {
