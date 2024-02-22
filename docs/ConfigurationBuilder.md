@@ -5,7 +5,7 @@ sidebar_label: 'Add secrets to configuration builder'
 
 # How to add secrets directly to a configuration builder
 
-To add secrets to an `IConfigurationBuilder`, call the `AddRockLibSecrets` extension method on the builder, optionally passing an `Action<SecretsConfigurationSource>` for [configuring the source](#SecretsConfigurationSource).
+To add secrets to an `IConfigurationBuilder`, call the `AddRockLibSecrets` extension method on the builder, optionally passing an `Action<SecretsConfigurationSource>` for [configuring the source](#secretsconfigurationsource).
 
 ```csharp
 IConfigurationBuilder builder = new ConfigurationBuilder();
