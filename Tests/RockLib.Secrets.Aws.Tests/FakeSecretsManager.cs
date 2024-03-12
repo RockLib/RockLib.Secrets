@@ -1,4 +1,5 @@
 ﻿using Amazon.Runtime;
+using Amazon.Runtime.Endpoints;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using System;
@@ -238,6 +239,21 @@ public sealed class FakeSecretsManager
     }
 
     public ValidateResourcePolicyResponse ValidateResourcePolicy(ValidateResourcePolicyRequest request)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<BatchGetSecretValueResponse> BatchGetSecretValueAsync(BatchGetSecretValueRequest request, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Endpoint DetermineServiceOperationEndpoint(AmazonWebServiceRequest request)
+    {
+        throw new NotImplementedException();
+    }
+
+    public BatchGetSecretValueResponse BatchGetSecretValue(BatchGetSecretValueRequest request)
     {
         throw new NotImplementedException();
     }

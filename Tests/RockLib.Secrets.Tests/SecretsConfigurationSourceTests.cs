@@ -34,7 +34,7 @@ namespace RockLib.Secrets.Tests
             };
 
             var builder = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string>
+                .AddInMemoryCollection(new Dictionary<string, string?>
                 {
                     ["RockLib.Secrets:Type"] = typeof(CustomSecret).AssemblyQualifiedName!
                 });
@@ -82,7 +82,7 @@ namespace RockLib.Secrets.Tests
             };
 
             var builder = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string>
+                .AddInMemoryCollection(new Dictionary<string, string?>
                 {
                     ["RockLib.Secrets:Type"] = typeof(CustomSecret).AssemblyQualifiedName!
                 });
@@ -106,7 +106,7 @@ namespace RockLib.Secrets.Tests
         }
 
 #pragma warning disable CA1812
-        private class CustomSecret : ISecret
+        private sealed class CustomSecret : ISecret
 #pragma warning restore CA1812
         {
             public string ConfigurationKey => "CustomSecret.Key";
