@@ -59,10 +59,14 @@ namespace RockLib.Secrets
         /// <returns>An instance of <see cref="SecretsConfigurationProvider"/>.</returns>
         public IConfigurationProvider Build(IConfigurationBuilder builder)
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(builder);
+#else
             if (builder is null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
+#endif
 
             if (!_alreadyBuilt)
             {
@@ -78,7 +82,7 @@ namespace RockLib.Secrets
             return new SecretsConfigurationProvider(this);
         }
 
-        private IEnumerable<ISecret> CreateSecretsFromConfiguration(IConfigurationBuilder builder)
+        private List<ISecret> CreateSecretsFromConfiguration(IConfigurationBuilder builder)
         {
             // Make a copy of the builder, excluding this SecretsConfigurationSource.
             // Otherwise there will be infinite recursion when building the builder.

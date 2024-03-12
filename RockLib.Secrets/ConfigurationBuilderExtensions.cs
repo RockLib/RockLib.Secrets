@@ -43,10 +43,14 @@ namespace RockLib.Secrets
         public static ISecretsConfigurationBuilder AddRockLibSecrets(this IConfigurationBuilder builder,
             Action<SecretsConfigurationSource>? configureSource)
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(builder);
+#else
             if (builder is null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
+#endif
 
             var source = new SecretsConfigurationSource();
             configureSource?.Invoke(source);
@@ -67,6 +71,10 @@ namespace RockLib.Secrets
         public static IConfigurationBuilder SetSecretExceptionHandler(this IConfigurationBuilder builder, 
             Action<SecretExceptionContext> onSecretException)
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(builder);
+            ArgumentNullException.ThrowIfNull(onSecretException);
+#else
             if (builder is null)
             {
                 throw new ArgumentNullException(nameof(builder));
@@ -76,6 +84,7 @@ namespace RockLib.Secrets
             {
                 throw new ArgumentNullException(nameof(onSecretException));
             }
+#endif
 
             builder.Properties[SecretExceptionHandlerKey] = onSecretException;
             return builder;
@@ -95,10 +104,14 @@ namespace RockLib.Secrets
         /// </exception>
         public static Action<SecretExceptionContext>? GetSecretExceptionHandler(this IConfigurationBuilder builder)
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(builder);
+#else
             if (builder is null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
+#endif
 
             if (builder.Properties.TryGetValue(SecretExceptionHandlerKey, out var value) && value is Action<SecretExceptionContext> exceptionHandler)
             {
