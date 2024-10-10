@@ -15,5 +15,5 @@
   - [Consume secrets from configuration](docs/Usage.md)
   - [Configure AWS secrets](docs/AwsSecret.md)
 - API Reference:
-  - [RockLib.Secrets](https://www.fuget.org/packages/RockLib.Secrets)
-  - [RockLib.Secrets.Aws](https://www.fuget.org/packages/RockLib.Secrets.Aws)
+  - [RockLib.Secrets](https://www.nuget.org/packages/RockLib.Secrets)
+  - [RockLib.Secrets.Aws](https://www.nuget.org/packages/RockLib.Secrets.Aws)
