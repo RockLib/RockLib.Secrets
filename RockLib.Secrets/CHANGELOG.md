@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Changed
 - Removed .NET 6.0 as a target framework.
+- Updated the following packages:
+	- RockLib.Configuration from 4.0.1 to 4.0.3
 
 ## 4.0.1 - 2024-07-19
 
