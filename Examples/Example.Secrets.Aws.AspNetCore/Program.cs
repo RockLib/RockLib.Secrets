@@ -33,10 +33,12 @@ if (application.Environment.IsDevelopment())
 application.UseHttpsRedirection();
 application.UseRouting();
 application.UseAuthorization();
+#pragma warning disable ASP0014 // Suggest using top level route registrations
 application.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
 });
+#pragma warning restore ASP0014 // Suggest using top level route registrations
 
 application.Run();
 
