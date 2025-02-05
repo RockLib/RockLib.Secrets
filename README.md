@@ -2,8 +2,6 @@
 
 *A configuration provider for Microsoft.Extensions.Configuration backed by runtime secrets.*
 
-> Note: The 5.0.0 release of RockLib.Secrets and the 4.0.0 release of RockLib.Secrets.Aws are the final versions with upgrades and changes. Bug fixes will continue to be released as needed.
-
 ### RockLib.Secrets
 
 ### RockLib.Secrets.Aws
